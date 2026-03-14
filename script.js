@@ -26,17 +26,49 @@ async function checkStatus() {
 
 async function updateStats() {
 
-  const res = await fetch(`${API_BASE}/stats`);
-  const data = await res.json();
+  try {
 
-  document.getElementById("mood").textContent =
-    "🧠 Mood: " + data.mood;
+    const res = await fetch(`${API_BASE}/stats`);
+    const data = await res.json();
 
-  document.getElementById("diary").textContent =
-    "📖 Diary: " + (data.lastDiary?.summary || "None");
+    document.getElementById("mood").textContent =
+      "🧠 Mood: " + (data.mood || "unknown");
 
-  document.getElementById("vision").textContent =
-    "👁 Vision: " + (data.lastVision?.[0] || "None");
+    document.getElementById("diary").textContent =
+      "📖 Diary: " + (data.diary?.summary || "None");
+
+    document.getElementById("vision").textContent =
+      "👁 Vision: " + (data.vision?.[0] || "None");
+
+  } catch (err) {
+
+    console.error("Stats failed:", err);
+
+  }
+
+}
+
+async function updateThoughts() {
+
+  try {
+
+    const res = await fetch(`${API_BASE}/thoughts`);
+    const data = await res.json();
+
+    const entries = Object.entries(data.thoughts || {});
+
+    const formatted = entries
+      .map(([k,v]) => `${k} (${v.toFixed(2)})`)
+      .join(", ");
+
+    document.getElementById("thoughts").textContent =
+      "💭 Thoughts: " + (formatted || "None");
+
+  } catch (err) {
+
+    console.error("Thoughts failed:", err);
+
+  }
 
 }
 
@@ -93,5 +125,9 @@ messageInput.addEventListener('keypress', (e) => {
 
 // Initial status check and start polling
 checkStatus();
+updateStats();
+updateThoughts();
+
 setInterval(checkStatus, 30000);
 setInterval(updateStats, 5000);
+setInterval(updateThoughts, 5000);

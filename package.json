@@ -1,0 +1,20 @@
+{
+  "name": "miri-web-hosting",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/TLG-Tako/Miri-Web-Hosting#readme",
+  "bugs": {
+    "url": "https://github.com/TLG-Tako/Miri-Web-Hosting/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TLG-Tako/Miri-Web-Hosting.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

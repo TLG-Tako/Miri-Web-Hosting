@@ -24,6 +24,22 @@ async function checkStatus() {
     }
 }
 
+async function updateStats() {
+
+  const res = await fetch(`${API_BASE}/stats`);
+  const data = await res.json();
+
+  document.getElementById("mood").textContent =
+    "🧠 Mood: " + data.mood;
+
+  document.getElementById("diary").textContent =
+    "📖 Diary: " + (data.lastDiary?.summary || "None");
+
+  document.getElementById("vision").textContent =
+    "👁 Vision: " + (data.lastVision?.[0] || "None");
+
+}
+
 // Send message
 async function sendMessage() {
     const message = messageInput.value.trim();
@@ -78,3 +94,4 @@ messageInput.addEventListener('keypress', (e) => {
 // Initial status check and start polling
 checkStatus();
 setInterval(checkStatus, 30000);
+setInterval(updateStats, 5000);

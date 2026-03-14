@@ -1,5 +1,5 @@
 // script.js
-const API_BASE = 'https://dfb29837.miri-web-hosting.pages.dev'; // Assuming the webpage is served from the same server
+const API_BASE = 'https://miri-production.up.railway.app'; // Assuming the webpage is served from the same server
 
 const statusDiv = document.getElementById('status');
 const chatMessages = document.getElementById('chatMessages');

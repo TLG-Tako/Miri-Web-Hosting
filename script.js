@@ -1,133 +1,151 @@
-// script.js
-const API_BASE = 'https://miri-production.up.railway.app'; // Assuming the webpage is served from the same server
+const API_BASE = "https://miri-production.up.railway.app";
 
-const statusDiv = document.getElementById('status');
-const chatMessages = document.getElementById('chatMessages');
-const messageInput = document.getElementById('messageInput');
-const sendButton = document.getElementById('sendButton');
+const statusDiv = document.getElementById("status");
+const chatMessages = document.getElementById("chatMessages");
+const messageInput = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
 
-let isOnline = false;
+/*
+STATUS
+*/
+async function checkStatus(){
 
-// Check status every 30 seconds
-async function checkStatus() {
-    try {
-        const response = await fetch(`${API_BASE}/status`);
-        const data = await response.json();
-        isOnline = data.online;
-        statusDiv.className = `status ${isOnline ? 'online' : 'offline'}`;
-        statusDiv.textContent = isOnline ? '🟢 Miri is Online' : '🔴 Miri is Offline';
-    } catch (error) {
-        console.error('Status check failed:', error);
-        statusDiv.className = 'status offline';
-        statusDiv.textContent = '❓ Unable to check status';
-        isOnline = false;
-    }
-}
+try{
 
-async function updateStats() {
+const res = await fetch(`${API_BASE}/status`);
+const data = await res.json();
 
-  try {
+statusDiv.className = `status ${data.online ? "online" : "offline"}`;
+statusDiv.textContent =
+data.online ? "🟢 Miri is Online" : "🔴 Miri is Offline";
 
-    const res = await fetch(`${API_BASE}/stats`);
-    const data = await res.json();
+}catch(err){
 
-    document.getElementById("mood").textContent =
-      "🧠 Mood: " + (data.mood || "unknown");
-
-    document.getElementById("diary").textContent =
-      "📖 Diary: " + (data.diary?.summary || "None");
-
-    document.getElementById("vision").textContent =
-      "👁 Vision: " + (data.vision?.[0] || "None");
-
-  } catch (err) {
-
-    console.error("Stats failed:", err);
-
-  }
+statusDiv.className="status offline";
+statusDiv.textContent="❓ Unable to check status";
 
 }
 
-async function updateThoughts() {
+}
 
-  try {
+/*
+STATS
+*/
+async function updateStats(){
 
-    const res = await fetch(`${API_BASE}/thoughts`);
-    const data = await res.json();
+try{
 
-    const entries = Object.entries(data.thoughts || {});
+const res = await fetch(`${API_BASE}/stats`);
+const data = await res.json();
 
-    const formatted = entries
-      .map(([k,v]) => `${k} (${v.toFixed(2)})`)
-      .join(", ");
+document.getElementById("mood").textContent =
+`🧠 Mood: ${data.mood || "unknown"} | Energy: ${data.energy || "?"}`;
 
-    document.getElementById("thoughts").textContent =
-      "💭 Thoughts: " + (formatted || "None");
+document.getElementById("diary").textContent =
+`📖 Diary: ${data.diary?.summary || "None"}`;
 
-  } catch (err) {
+document.getElementById("vision").textContent =
+`👁 Vision: ${data.vision?.[0] || "None"}`;
 
-    console.error("Thoughts failed:", err);
+}catch(err){
 
-  }
+console.error("Stats failed:",err);
 
 }
 
-// Send message
-async function sendMessage() {
-    const message = messageInput.value.trim();
-    if (!message) return;
-
-    // Add user message to chat
-    addMessage('user', message);
-    messageInput.value = '';
-    sendButton.disabled = true;
-
-    try {
-        const response = await fetch(`${API_BASE}/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message }),
-        });
-
-        const data = await response.json();
-        
-        if (response.ok) {
-            addMessage('bot', data.response);
-        } else {
-            addMessage('bot', `Error: ${data.error}`);
-        }
-    } catch (error) {
-        console.error('Chat request failed:', error);
-        addMessage('bot', 'Sorry, I couldn\'t send your message. Please try again.');
-    } finally {
-        sendButton.disabled = false;
-    }
 }
 
-// Add message to chat
-function addMessage(type, content) {
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `message ${type}-message`;
-    messageDiv.textContent = content;
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
+/*
+THOUGHTS
+*/
+async function updateThoughts(){
+
+try{
+
+const res = await fetch(`${API_BASE}/thoughts`);
+const data = await res.json();
+
+const entries = Object.entries(data.thoughts || {});
+
+const formatted = entries
+.map(([k,v]) => `${k} (${v.toFixed(2)})`)
+.join(", ");
+
+document.getElementById("thoughts").textContent =
+`💭 Thoughts: ${formatted || "None"}`;
+
+}catch(err){
+
+console.error("Thoughts failed:",err);
+
 }
 
-// Event listeners
-sendButton.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendMessage();
-    }
+}
+
+/*
+CHAT
+*/
+async function sendMessage(){
+
+const message = messageInput.value.trim();
+
+if(!message) return;
+
+addMessage("user",message);
+
+messageInput.value="";
+sendButton.disabled=true;
+
+try{
+
+const res = await fetch(`${API_BASE}/chat`,{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({message})
 });
 
-// Initial status check and start polling
+const data = await res.json();
+
+addMessage("bot",data.response);
+
+}catch(err){
+
+addMessage("bot","Connection error.");
+
+}
+
+sendButton.disabled=false;
+
+}
+
+function addMessage(type,text){
+
+const div=document.createElement("div");
+
+div.className=`message ${type}-message`;
+
+div.textContent=text;
+
+chatMessages.appendChild(div);
+
+chatMessages.scrollTop=chatMessages.scrollHeight;
+
+}
+
+sendButton.onclick=sendMessage;
+
+messageInput.addEventListener("keypress",e=>{
+if(e.key==="Enter") sendMessage();
+});
+
+/*
+START POLLING
+*/
+
 checkStatus();
 updateStats();
 updateThoughts();
 
-setInterval(checkStatus, 30000);
-setInterval(updateStats, 5000);
-setInterval(updateThoughts, 5000);
+setInterval(checkStatus,30000);
+setInterval(updateStats,5000);
+setInterval(updateThoughts,5000);

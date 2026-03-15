@@ -4,6 +4,19 @@ const statusDiv = document.getElementById("status");
 const chatMessages = document.getElementById("chatMessages");
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
+const token = new URLSearchParams(window.location.search).get("token");
+
+if(token){
+
+  localStorage.setItem("miri_token",token);
+
+  window.history.replaceState({},document.title,"/");
+
+}
+
+document.getElementById("loginBtn").onclick=()=>{
+  window.location.href = `${API_BASE}/login`;
+};
 
 /*
 STATUS
@@ -98,9 +111,14 @@ sendButton.disabled=true;
 
 try{
 
+const token = localStorage.getItem("miri_token");
 const res = await fetch(`${API_BASE}/chat`,{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
+
+headers:{
+  "Content-Type":"application/json",
+  "Authorization":token
+},
 body:JSON.stringify({message})
 });
 

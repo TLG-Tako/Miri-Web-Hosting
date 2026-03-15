@@ -1,22 +1,64 @@
+// script.js
+
 const API_BASE = "https://miri-production.up.railway.app";
 
 const statusDiv = document.getElementById("status");
 const chatMessages = document.getElementById("chatMessages");
 const messageInput = document.getElementById("messageInput");
 const sendButton = document.getElementById("sendButton");
+const userPanel = document.getElementById("userPanel");
+const userName = document.getElementById("userName");
+const userAvatar = document.getElementById("userAvatar");
+const logoutBtn = document.getElementById("logoutBtn");
 const token = new URLSearchParams(window.location.search).get("token");
 
-if(token){
+const urlToken = new URLSearchParams(window.location.search).get("token");
 
-  localStorage.setItem("miri_token",token);
+if(urlToken){
+  localStorage.setItem("miri_token", urlToken);
+  window.history.replaceState({}, document.title, "/");
+}
 
-  window.history.replaceState({},document.title,"/");
+const savedToken = localStorage.getItem("miri_token");
+
+if(savedToken){
+
+  const user = parseJwt(savedToken);
+
+  if(user){
+
+    userPanel.style.display = "block";
+
+    userName.textContent = `👤 Logged in as ${user.username}`;
+
+    userAvatar.src =
+      `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
+
+  }
 
 }
 
 document.getElementById("loginBtn").onclick=()=>{
   window.location.href = `${API_BASE}/login`;
 };
+
+logoutBtn.onclick = () => {
+
+  localStorage.removeItem("miri_token");
+
+  location.reload();
+
+};
+
+function parseJwt(token) {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
 
 /*
 STATUS

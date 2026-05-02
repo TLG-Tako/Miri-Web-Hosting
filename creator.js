@@ -9,6 +9,10 @@ const PAGE_LABELS = {
 const aboutTitleInput = document.getElementById("aboutTitleInput");
 const aboutSubtitleInput = document.getElementById("aboutSubtitleInput");
 const aboutBodyInput = document.getElementById("aboutBodyInput");
+const capabilitiesTitleInput = document.getElementById("capabilitiesTitleInput");
+const capabilitiesInput = document.getElementById("capabilitiesInput");
+const benefitsTitleInput = document.getElementById("benefitsTitleInput");
+const benefitsInput = document.getElementById("benefitsInput");
 const photoUploadInput = document.getElementById("photoUploadInput");
 const photoList = document.getElementById("photoList");
 const lockList = document.getElementById("lockList");
@@ -50,6 +54,10 @@ function setAboutFields(about){
   aboutTitleInput.value = about.title || "";
   aboutSubtitleInput.value = about.subtitle || "";
   aboutBodyInput.value = about.body || "";
+  capabilitiesTitleInput.value = about.capabilitiesTitle || "What can Miri do?";
+  capabilitiesInput.value = Array.isArray(about.capabilities) ? about.capabilities.join("\n") : "";
+  benefitsTitleInput.value = about.benefitsTitle || "Why choose Miri?";
+  benefitsInput.value = Array.isArray(about.benefits) ? about.benefits.join("\n") : "";
   aboutImages = Array.isArray(about.images) ? about.images : [];
   renderPhotos();
 }
@@ -188,6 +196,10 @@ async function saveCreatorConfig(){
       title: aboutTitleInput.value,
       subtitle: aboutSubtitleInput.value,
       body: aboutBodyInput.value,
+      capabilitiesTitle: capabilitiesTitleInput.value,
+      capabilities: getLines(capabilitiesInput.value),
+      benefitsTitle: benefitsTitleInput.value,
+      benefits: getLines(benefitsInput.value),
       images: aboutImages
     },
     pageLocks: collectPageLocks()
@@ -207,4 +219,11 @@ async function saveCreatorConfig(){
     saveResult.textContent = err.message || "Failed to save changes.";
     saveResult.style.color = "var(--danger)";
   }
+}
+
+function getLines(value){
+  return String(value || "")
+    .split("\n")
+    .map(line => line.trim())
+    .filter(Boolean);
 }

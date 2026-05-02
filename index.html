@@ -46,6 +46,56 @@ object-fit:cover;
 border-radius:10px;
 border:1px solid var(--border);
 background:var(--surface-alt);
+cursor:zoom-in;
+}
+
+.about-details{
+margin-top:14px;
+}
+
+.about-list{
+margin:0;
+padding-left:20px;
+line-height:1.6;
+}
+
+.about-list li{
+margin-bottom:6px;
+}
+
+.image-modal{
+position:fixed;
+inset:0;
+display:none;
+align-items:center;
+justify-content:center;
+padding:24px;
+background:rgba(5,10,22,.82);
+z-index:20;
+}
+
+.image-modal.is-open{
+display:flex;
+}
+
+.image-modal img{
+max-width:min(1100px,94vw);
+max-height:86vh;
+object-fit:contain;
+border-radius:12px;
+box-shadow:0 22px 70px rgba(0,0,0,.35);
+}
+
+.image-modal button{
+position:absolute;
+top:18px;
+right:18px;
+width:40px;
+height:40px;
+border-radius:50%;
+background:var(--surface);
+color:var(--text);
+font-size:22px;
 }
 
 .empty-photos{
@@ -96,28 +146,19 @@ padding:18px;
       </div>
     </section>
 
-    <section class="card">
-      <h2>What can Miri do?</h2>
-      <ul>
-        <li>Moderate your server with automatic punishments, ticket logging, and built-in discipline tools.</li>
-        <li>Welcome new members, assign roles, and manage verification and onboarding flows.</li>
-        <li>Run an economy system with currency, rewards, and activity tracking.</li>
-        <li>Power social features like counting games, RP notifications, and custom community commands.</li>
-        <li>Provide AI chat support, memory-based context, and creator tools for custom behavior.</li>
-      </ul>
+    <section class="card about-details">
+      <h2 id="capabilitiesTitle">What can Miri do?</h2>
+      <ul id="capabilitiesList" class="about-list"></ul>
 
-      <h2>What is Miri used for?</h2>
-      <p>Miri is used to keep Discord communities organized, safe, and engaging. She automates everyday moderation, supports community interaction, and gives creators a flexible dashboard for server configuration.</p>
-
-      <h2>Why choose Miri?</h2>
-      <ul>
-        <li>Designed for active communities that need moderation, automation, and personality.</li>
-        <li>Offers server customization through a web dashboard rather than complex bot commands.</li>
-        <li>Combines reliable utility features with AI-driven interaction and persistent memory.</li>
-        <li>Supports both standard moderation and creative community experiences.</li>
-      </ul>
+      <h2 id="benefitsTitle">Why choose Miri?</h2>
+      <ul id="benefitsList" class="about-list"></ul>
     </section>
   </main>
+</div>
+
+<div id="imageModal" class="image-modal" aria-hidden="true">
+  <button id="closeImageModal" type="button" aria-label="Close enlarged image">&times;</button>
+  <img id="modalImage" alt="">
 </div>
 
 <script src="about.js"></script>

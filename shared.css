@@ -32,6 +32,7 @@ padding:24px 16px 44px;
 font-family:"Segoe UI",Tahoma,sans-serif;
 background:radial-gradient(circle at 0% 0%,#ffffff 0%,var(--bg) 45%,#e9edff 100%);
 color:var(--text);
+min-width:320px;
 }
 
 :root[data-theme="dark"] body{
@@ -70,6 +71,14 @@ background:#1f2a52;
 color:white;
 font-size:13px;
 font-weight:700;
+display:inline-flex;
+align-items:center;
+justify-content:center;
+min-height:36px;
+}
+
+.top-nav a[data-creator-only]{
+display:none;
 }
 
 .identity-row{
@@ -113,6 +122,13 @@ border:1px solid var(--border);
 border-radius:14px;
 box-shadow:0 10px 30px rgba(39,56,130,0.08);
 padding:16px;
+}
+
+h1,
+h2,
+h3,
+p{
+overflow-wrap:anywhere;
 }
 
 .muted{color:var(--muted);}
@@ -170,6 +186,103 @@ margin:40px auto;
 }
 
 @media (max-width:720px){
-.top-nav{align-items:flex-start;flex-direction:column;}
-.identity-row{width:100%;justify-content:space-between;}
+body{
+padding:14px 10px 32px;
+background:linear-gradient(180deg,var(--surface-alt) 0%,var(--bg) 100%);
+}
+
+:root[data-theme="dark"] body{
+background:linear-gradient(180deg,#1b253b 0%,var(--bg) 100%);
+}
+
+.container{
+width:100%;
+}
+
+.top-nav{
+align-items:stretch;
+flex-direction:column;
+gap:10px;
+margin-bottom:12px;
+}
+
+.nav-links{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:8px;
+}
+
+.top-nav a,
+.button-link{
+width:100%;
+padding:9px 10px;
+font-size:12px;
+line-height:1.2;
+text-align:center;
+}
+
+.identity-row{
+width:100%;
+justify-content:space-between;
+gap:8px;
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:12px;
+padding:8px;
+}
+
+[data-identity]{
+min-width:0;
+line-height:1.25;
+overflow-wrap:anywhere;
+}
+
+[data-login-btn],
+[data-logout-btn]{
+min-height:38px;
+white-space:nowrap;
+}
+
+.card{
+border-radius:12px;
+padding:14px;
+box-shadow:0 8px 22px rgba(39,56,130,0.07);
+}
+
+.grid{
+grid-template-columns:1fr;
+gap:10px;
+}
+
+h1{
+font-size:30px;
+line-height:1.08;
+margin-top:0;
+}
+
+h2{
+font-size:20px;
+line-height:1.2;
+}
+}
+
+@media (max-width:420px){
+body{
+padding-inline:8px;
+}
+
+.nav-links{
+grid-template-columns:1fr;
+}
+
+.identity-row{
+align-items:stretch;
+flex-direction:column;
+}
+
+[data-login-btn],
+[data-logout-btn],
+.primary-btn{
+width:100%;
+}
 }

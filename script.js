@@ -1,6 +1,7 @@
 // script.js
 
 const API_BASE = "https://miri-production.up.railway.app";
+const DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize?client_id=1482556887500066867&response_type=code&redirect_uri=https%3A%2F%2Fmiri-web-hosting.pages.dev%2Fcallback&scope=identify+guilds";
 
 const statusDiv = document.getElementById("status");
 const chatMessages = document.getElementById("chatMessages");
@@ -21,31 +22,88 @@ if(urlToken){
   window.history.replaceState({}, document.title, window.location.pathname);
 }
 
+async function hydrateAuthStateFromServer(){
+
+try{
+
+const token = localStorage.getItem("miri_token");
+const headers = {};
+
+if(token){
+  headers.Authorization = token;
+}
+
+const res = await fetch(`${API_BASE}/auth/me`, {
+  headers,
+  credentials: "include"
+});
+
+if(!res.ok) return;
+
+const data = await res.json();
+
+if(!data?.user) return;
+
+currentUser = data.user;
+syncAuthStateUI();
+
+}catch{
+
+// no-op
+
+}
+
+}
+
+function syncAuthStateUI(){
+
+if(!currentUser) return;
+
+userPanel.style.display = "flex";
+
+const displayName = currentUser.global_name || currentUser.globalName || currentUser.username;
+
+userName.textContent = `👤 Logged in as ${displayName}`;
+
+if(currentUser.avatar){
+  userAvatar.src =
+    `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png`;
+}else{
+  userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${Number(currentUser.discriminator || 0) % 5}.png`;
+}
+
+authHint.textContent = `Miri can identify you as ${displayName}.`;
+loginBtn.style.display = "none";
+
+}
+
 const savedToken = localStorage.getItem("miri_token");
 
 if(savedToken){
-  currentUser = parseJwt(savedToken);
-
-  if(currentUser){
-    userPanel.style.display = "flex";
-    userName.textContent = `👤 Logged in as ${currentUser.username}`;
-    if(currentUser.avatar){
-      userAvatar.src =
-        `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png`;
-    }else{
-      userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${Number(currentUser.discriminator || 0) % 5}.png`;
-    }
-    authHint.textContent = `Miri can identify you as ${currentUser.username}.`;
-    loginBtn.style.display = "none";
+  const parsed = parseJwt(savedToken);
+  if(parsed){
+    currentUser = parsed;
+    syncAuthStateUI();
   }
 }
 
+hydrateAuthStateFromServer();
+
 loginBtn.onclick=()=>{
-  const returnTo = encodeURIComponent(window.location.pathname);
-  window.location.href = `${API_BASE}/login?returnTo=${returnTo}`;
+  localStorage.setItem("miri_post_auth_path", window.location.pathname || "/");
+  window.location.href = DISCORD_OAUTH_URL;
 };
 
-logoutBtn.onclick = () => {
+logoutBtn.onclick = async () => {
+
+  try{
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+  }catch{
+    // no-op
+  }
 
   localStorage.removeItem("miri_token");
 
@@ -178,6 +236,7 @@ const res = await fetch(`${API_BASE}/chat`,{
 method:"POST",
 
 headers,
+credentials:"include",
 body:JSON.stringify({
   message,
   userContext: currentUser
@@ -190,7 +249,17 @@ body:JSON.stringify({
 })
 });
 
+if(res.status === 401){
+addMessage("bot","Please login with Discord before chatting.");
+return;
+}
+
 const data = await res.json();
+
+if(!res.ok){
+addMessage("bot",data?.error || "Failed to send message.");
+return;
+}
 
 addMessage("bot",data.response);
 

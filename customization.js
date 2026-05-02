@@ -1,4 +1,5 @@
 const API_BASE = "https://miri-production.up.railway.app";
+const DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize?client_id=1482556887500066867&response_type=code&redirect_uri=https%3A%2F%2Fmiri-web-hosting.pages.dev%2Fcallback&scope=identify+guilds";
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
@@ -18,17 +19,46 @@ if(urlToken){
   window.history.replaceState({}, document.title, window.location.pathname);
 }
 
+async function hydrateAuthStateFromServer(){
+  try{
+    const headers = {};
+
+    if(token){
+      headers.Authorization = token;
+    }
+
+    const data = await apiFetch("/auth/me", {
+      headers
+    });
+
+    if(data?.user){
+      currentUser = data.user;
+    }
+  }catch{
+    // no-op
+  }
+}
+
 const token = localStorage.getItem("miri_token");
 if(token){
   currentUser = parseJwt(token);
 }
 
 loginBtn.onclick = () => {
-  const returnTo = encodeURIComponent(window.location.pathname);
-  window.location.href = `${API_BASE}/login?returnTo=${returnTo}`;
+  localStorage.setItem("miri_post_auth_path", window.location.pathname || "/");
+  window.location.href = DISCORD_OAUTH_URL;
 };
 
-logoutBtn.onclick = () => {
+logoutBtn.onclick = async () => {
+  try{
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: "POST",
+      credentials: "include"
+    });
+  }catch{
+    // no-op
+  }
+
   localStorage.removeItem("miri_token");
   location.reload();
 };
@@ -69,7 +99,9 @@ saveBtn.onclick = async () => {
 };
 
 async function boot(){
-  if(!token || !currentUser){
+  await hydrateAuthStateFromServer();
+
+  if(!currentUser){
     saveResult.textContent = "Login with Discord to customize server settings.";
     return;
   }
@@ -196,7 +228,8 @@ async function apiFetch(path, options = {}){
 
   const res = await fetch(`${API_BASE}${path}`, {
     ...options,
-    headers
+    headers,
+    credentials: "include"
   });
 
   const data = await res.json().catch(() => ({}));

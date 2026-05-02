@@ -96,6 +96,10 @@ border-radius:8px;
 font-size:14px;
 }
 
+select[multiple]{
+min-height:140px;
+}
+
 .toolbar select{min-width:280px;max-width:440px;}
 
 .grid{
@@ -163,32 +167,32 @@ margin-top:5px;
   <div class="card">
     <h3>Channels</h3>
     <div class="grid">
-      <div class="field"><label>Mod Channel ID</label><input data-field="modChannel"></div>
-      <div class="field"><label>Admin Channel ID</label><input data-field="adminChannel"></div>
-      <div class="field"><label>Discipline Channel ID</label><input data-field="disciplineChannel"></div>
-      <div class="field"><label>Ticket Category ID</label><input data-field="ticketCategory"></div>
-      <div class="field"><label>Welcome Channel ID</label><input data-field="welcomeChannel"></div>
-      <div class="field"><label>Goodbye Channel ID</label><input data-field="goodbyeChannel"></div>
-      <div class="field"><label>Rules Channel ID</label><input data-field="rulesChannel"></div>
-      <div class="field"><label>RP Notify Channel ID</label><input data-field="rpNotifyChannel"></div>
-      <div class="field"><label>Counting Channel ID</label><input data-field="countingChannel"></div>
-      <div class="field"><label>Auto Purge Channel IDs</label><input data-array-field="autoPurgeChannels" placeholder="123, 456, 789"></div>
-      <div class="field"><label>Currency Channel IDs</label><input data-array-field="currencyChannels" placeholder="123, 456, 789"></div>
+      <div class="field"><label>Mod Channel</label><select data-channel-field="modChannel"></select></div>
+      <div class="field"><label>Admin Channel</label><select data-channel-field="adminChannel"></select></div>
+      <div class="field"><label>Discipline Channel</label><select data-channel-field="disciplineChannel"></select></div>
+      <div class="field"><label>Ticket Category</label><select data-channel-field="ticketCategory"></select></div>
+      <div class="field"><label>Welcome Channel</label><select data-channel-field="welcomeChannel"></select></div>
+      <div class="field"><label>Goodbye Channel</label><select data-channel-field="goodbyeChannel"></select></div>
+      <div class="field"><label>Rules Channel</label><select data-channel-field="rulesChannel"></select></div>
+      <div class="field"><label>RP Notify Channel</label><select data-channel-field="rpNotifyChannel"></select></div>
+      <div class="field"><label>Counting Channel</label><select data-channel-field="countingChannel"></select></div>
+      <div class="field"><label>Auto Purge Channels</label><select data-channel-array-field="autoPurgeChannels" multiple></select><div class="helper">Hold Ctrl / Cmd to select multiple channels.</div></div>
+      <div class="field"><label>Currency Channels</label><select data-channel-array-field="currencyChannels" multiple></select><div class="helper">Hold Ctrl / Cmd to select multiple channels.</div></div>
     </div>
   </div>
 
   <div class="card">
     <h3>Roles</h3>
     <div class="grid">
-      <div class="field"><label>Staff Role ID</label><input data-field="staffRole"></div>
-      <div class="field"><label>Admin Role ID</label><input data-field="adminRole"></div>
-      <div class="field"><label>Moderator Role ID</label><input data-field="moderatorRole"></div>
-      <div class="field"><label>Unverified Role ID</label><input data-field="unverifiedRole"></div>
-      <div class="field"><label>Verified Role ID</label><input data-field="verifiedRole"></div>
-      <div class="field"><label>Welcome Role ID</label><input data-field="welcomeRole"></div>
-      <div class="field"><label>Muted Role ID</label><input data-field="mutedRole"></div>
-      <div class="field"><label>Reward Role ID</label><input data-field="rewardRole"></div>
-      <div class="field"><label>Music Role ID</label><input data-field="musicRole"></div>
+      <div class="field"><label>Staff Role</label><select data-role-field="staffRole"></select></div>
+      <div class="field"><label>Admin Role</label><select data-role-field="adminRole"></select></div>
+      <div class="field"><label>Moderator Role</label><select data-role-field="moderatorRole"></select></div>
+      <div class="field"><label>Unverified Role</label><select data-role-field="unverifiedRole"></select></div>
+      <div class="field"><label>Verified Role</label><select data-role-field="verifiedRole"></select></div>
+      <div class="field"><label>Welcome Role</label><select data-role-field="welcomeRole"></select></div>
+      <div class="field"><label>Muted Role</label><select data-role-field="mutedRole"></select></div>
+      <div class="field"><label>Reward Role</label><select data-role-field="rewardRole"></select></div>
+      <div class="field"><label>Music Role</label><select data-role-field="musicRole"></select></div>
     </div>
   </div>
 

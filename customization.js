@@ -10,6 +10,32 @@ const guildSelect = document.getElementById("guildSelect");
 const saveBtn = document.getElementById("saveBtn");
 const saveResult = document.getElementById("saveResult");
 
+const CHANNEL_FIELDS = [
+  "modChannel",
+  "adminChannel",
+  "disciplineChannel",
+  "ticketCategory",
+  "welcomeChannel",
+  "goodbyeChannel",
+  "rulesChannel",
+  "rpNotifyChannel",
+  "countingChannel"
+];
+
+const ROLE_FIELDS = [
+  "staffRole",
+  "adminRole",
+  "moderatorRole",
+  "unverifiedRole",
+  "verifiedRole",
+  "welcomeRole",
+  "mutedRole",
+  "rewardRole",
+  "musicRole"
+];
+
+const CHANNEL_ARRAY_FIELDS = ["autoPurgeChannels", "currencyChannels"];
+
 let currentUser = null;
 let currentGuildId = "";
 
@@ -154,6 +180,9 @@ async function loadSettings(guildId){
   saveResult.style.color = "#677086";
 
   try{
+    const resources = await apiFetch(`/dashboard/guild-resources/${guildId}`);
+    applyGuildResources(resources);
+
     const data = await apiFetch(`/dashboard/server-vars/${guildId}`);
     setFields(data.settings || {});
     saveResult.textContent = `Loaded settings for ${data.guild?.name || "selected server"}.`;
@@ -181,6 +210,24 @@ function setFields(settings){
     const value = settings[key];
     input.value = value === null || value === undefined ? "" : Number(value);
   });
+
+  document.querySelectorAll("[data-channel-field]").forEach(select => {
+    const key = select.dataset.channelField;
+    select.value = settings[key] ?? "";
+  });
+
+  document.querySelectorAll("[data-role-field]").forEach(select => {
+    const key = select.dataset.roleField;
+    select.value = settings[key] ?? "";
+  });
+
+  document.querySelectorAll("[data-channel-array-field]").forEach(select => {
+    const key = select.dataset.channelArrayField;
+    const selectedValues = Array.isArray(settings[key]) ? settings[key] : [];
+    Array.from(select.options).forEach(option => {
+      option.selected = selectedValues.includes(option.value);
+    });
+  });
 }
 
 function clearFields(){
@@ -188,6 +235,16 @@ function clearFields(){
     .forEach(input => {
       input.value = "";
     });
+
+  document.querySelectorAll("[data-channel-field], [data-role-field]").forEach(select => {
+    select.value = "";
+  });
+
+  document.querySelectorAll("[data-channel-array-field]").forEach(select => {
+    Array.from(select.options).forEach(option => {
+      option.selected = false;
+    });
+  });
 }
 
 function collectSettings(){
@@ -211,7 +268,185 @@ function collectSettings(){
     settings[key] = input.value === "" ? null : Number(input.value);
   });
 
+  document.querySelectorAll("[data-channel-field]").forEach(select => {
+    const key = select.dataset.channelField;
+    settings[key] = select.value || null;
+  });
+
+  document.querySelectorAll("[data-role-field]").forEach(select => {
+    const key = select.dataset.roleField;
+    settings[key] = select.value || null;
+  });
+
+  document.querySelectorAll("[data-channel-array-field]").forEach(select => {
+    const key = select.dataset.channelArrayField;
+    settings[key] = Array.from(select.selectedOptions)
+      .map(option => option.value)
+      .filter(Boolean);
+  });
+
   return settings;
+}
+
+function applyGuildResources(resources){
+  const channels = Array.isArray(resources?.channels) ? resources.channels : [];
+  const roles = Array.isArray(resources?.roles) ? resources.roles : [];
+
+  document.querySelectorAll("[data-channel-field]").forEach(select => {
+    const fieldName = select.dataset.channelField;
+    const filteredChannels = filterChannelsForField(fieldName, channels);
+    populateChannelSingleSelect(select, filteredChannels, channel => {
+      return `${channel.mention} #${channel.name} (${channel.typeLabel})`;
+    });
+  });
+
+  document.querySelectorAll("[data-role-field]").forEach(select => {
+    populateSingleSelect(select, roles, role => `${role.mention} @${role.name}`);
+  });
+
+  document.querySelectorAll("[data-channel-array-field]").forEach(select => {
+    populateChannelMultiSelect(select, channels, channel => `${channel.mention} #${channel.name} (${channel.typeLabel})`);
+  });
+}
+
+function getCategoryGroupedChannels(channels){
+  const categoryMap = new Map();
+  const rootChannels = [];
+
+  const categories = channels
+    .filter(channel => Number(channel.type) === 4)
+    .sort((a, b) => (Number(a.position) || 0) - (Number(b.position) || 0));
+
+  for(const category of categories){
+    categoryMap.set(category.id, {
+      category,
+      children: []
+    });
+  }
+
+  for(const channel of channels){
+    if(Number(channel.type) === 4) continue;
+
+    const parentId = channel.parentId || null;
+    const group = parentId ? categoryMap.get(parentId) : null;
+
+    if(group){
+      group.children.push(channel);
+    }else{
+      rootChannels.push(channel);
+    }
+  }
+
+  for(const group of categoryMap.values()){
+    group.children.sort((a, b) => (Number(a.position) || 0) - (Number(b.position) || 0));
+  }
+
+  rootChannels.sort((a, b) => (Number(a.position) || 0) - (Number(b.position) || 0));
+
+  return {
+    categories: Array.from(categoryMap.values()),
+    rootChannels
+  };
+}
+
+function populateChannelSingleSelect(select, channels, labelBuilder){
+  select.innerHTML = "";
+
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "Not set";
+  select.appendChild(noneOption);
+
+  const grouped = getCategoryGroupedChannels(channels);
+
+  for(const rootChannel of grouped.rootChannels){
+    const option = document.createElement("option");
+    option.value = rootChannel.id;
+    option.textContent = labelBuilder(rootChannel);
+    select.appendChild(option);
+  }
+
+  for(const group of grouped.categories){
+    const categoryHeader = document.createElement("option");
+    categoryHeader.value = "";
+    categoryHeader.disabled = true;
+    categoryHeader.textContent = `— ${group.category.name} —`;
+    select.appendChild(categoryHeader);
+
+    for(const child of group.children){
+      const option = document.createElement("option");
+      option.value = child.id;
+      option.textContent = `   ${labelBuilder(child)}`;
+      select.appendChild(option);
+    }
+  }
+}
+
+function populateChannelMultiSelect(select, channels, labelBuilder){
+  select.innerHTML = "";
+
+  const grouped = getCategoryGroupedChannels(channels);
+
+  for(const rootChannel of grouped.rootChannels){
+    const option = document.createElement("option");
+    option.value = rootChannel.id;
+    option.textContent = labelBuilder(rootChannel);
+    select.appendChild(option);
+  }
+
+  for(const group of grouped.categories){
+    const categoryHeader = document.createElement("option");
+    categoryHeader.value = "";
+    categoryHeader.disabled = true;
+    categoryHeader.textContent = `— ${group.category.name} —`;
+    select.appendChild(categoryHeader);
+
+    for(const child of group.children){
+      const option = document.createElement("option");
+      option.value = child.id;
+      option.textContent = `   ${labelBuilder(child)}`;
+      select.appendChild(option);
+    }
+  }
+}
+
+function populateSingleSelect(select, items, labelBuilder){
+  select.innerHTML = "";
+
+  const noneOption = document.createElement("option");
+  noneOption.value = "";
+  noneOption.textContent = "Not set";
+  select.appendChild(noneOption);
+
+  for(const item of items){
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = labelBuilder(item);
+    select.appendChild(option);
+  }
+}
+
+function populateMultiSelect(select, items, labelBuilder){
+  select.innerHTML = "";
+
+  for(const item of items){
+    const option = document.createElement("option");
+    option.value = item.id;
+    option.textContent = labelBuilder(item);
+    select.appendChild(option);
+  }
+}
+
+function filterChannelsForField(fieldName, channels){
+  if(fieldName === "ticketCategory"){
+    return channels.filter(channel => Number(channel.type) === 4);
+  }
+
+  if(CHANNEL_FIELDS.includes(fieldName)){
+    return channels.filter(channel => Number(channel.type) !== 4);
+  }
+
+  return channels;
 }
 
 async function apiFetch(path, options = {}){

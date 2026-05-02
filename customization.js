@@ -115,6 +115,11 @@ saveBtn.onclick = async () => {
       body: JSON.stringify({ settings })
     });
 
+    await apiFetch(`/dashboard/greetings/${currentGuildId}`, {
+      method: "PUT",
+      body: JSON.stringify(collectGreetings())
+    });
+
     setFields(res.settings || {});
     saveResult.textContent = "Saved successfully.";
     saveResult.style.color = "#1f9a66";
@@ -213,6 +218,8 @@ async function loadSettings(guildId){
 
     const data = await apiFetch(`/dashboard/server-vars/${guildId}`);
     setFields(data.settings || {});
+    const greetings = await apiFetch(`/dashboard/greetings/${guildId}`);
+    setGreetings(greetings);
     saveResult.textContent = `Loaded settings for ${data.guild?.name || "selected server"}.`;
   }catch(err){
     clearFields();
@@ -258,6 +265,18 @@ function setFields(settings){
   });
 }
 
+function setGreetings(greetings){
+  setGreetingFields("welcome", greetings?.welcome || {});
+  setGreetingFields("goodbye", greetings?.goodbye || {});
+}
+
+function setGreetingFields(type, values){
+  document.querySelectorAll(`[data-${type}-field]`).forEach(input => {
+    const key = input.dataset[`${type}Field`];
+    input.value = values[key] || (key === "color" ? "#000000" : "");
+  });
+}
+
 function clearFields(){
   document.querySelectorAll("input[data-field], input[data-array-field], input[data-number-field]")
     .forEach(input => {
@@ -272,6 +291,11 @@ function clearFields(){
     Array.from(select.options).forEach(option => {
       option.selected = false;
     });
+  });
+
+  setGreetings({
+    welcome: {},
+    goodbye: {}
   });
 }
 
@@ -314,6 +338,26 @@ function collectSettings(){
   });
 
   return settings;
+}
+
+function collectGreetings(){
+  return {
+    welcome: collectGreetingFields("welcome"),
+    goodbye: collectGreetingFields("goodbye")
+  };
+}
+
+function collectGreetingFields(type){
+  const values = {};
+
+  document.querySelectorAll(`[data-${type}-field]`).forEach(input => {
+    const key = input.dataset[`${type}Field`];
+    values[key] = input.value.trim();
+  });
+
+  if(!values.color) values.color = "#000000";
+
+  return values;
 }
 
 function applyGuildResources(resources){

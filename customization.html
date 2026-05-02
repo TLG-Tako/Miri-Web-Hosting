@@ -117,7 +117,7 @@ align-items:center;
 margin-bottom:12px;
 }
 
-select,input{
+select,input,textarea{
 width:100%;
 padding:9px;
 border:1px solid var(--border);
@@ -125,10 +125,16 @@ border-radius:8px;
 font-size:14px;
 background:var(--surface);
 color:var(--text);
+font-family:inherit;
 }
 
 select[multiple]{
 min-height:140px;
+}
+
+textarea{
+min-height:120px;
+resize:vertical;
 }
 
 .toolbar select{min-width:280px;max-width:440px;}
@@ -252,6 +258,38 @@ font-weight:700;
       <div class="field"><label>Currency Name</label><input data-field="currencyName"></div>
       <div class="field"><label>Currency Emoji</label><input data-field="currencyEmoji"></div>
       <div class="field"><label>Music Duration (seconds)</label><input data-number-field="musicDuration" type="number" min="0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Welcome & Goodbye Messages</h3>
+    <div class="helper">Placeholders: welcome supports {member} and {memberModifier}; goodbye supports {member}, {user}, and {memberCount}.</div>
+    <div class="grid" style="margin-top:12px;">
+      <div class="field">
+        <h4>Welcome Message</h4>
+        <label>Title</label>
+        <input data-welcome-field="title" maxlength="256">
+        <label>Description</label>
+        <textarea data-welcome-field="description" maxlength="4000"></textarea>
+        <label>Image URL</label>
+        <input data-welcome-field="imageUrl">
+        <label>Embed Color</label>
+        <input data-welcome-field="color" type="color">
+      </div>
+
+      <div class="field">
+        <h4>Goodbye Message</h4>
+        <label>Title</label>
+        <input data-goodbye-field="title" maxlength="256">
+        <label>Description</label>
+        <textarea data-goodbye-field="description" maxlength="4000"></textarea>
+        <label>Image URL</label>
+        <input data-goodbye-field="imageUrl">
+        <label>Embed Color</label>
+        <input data-goodbye-field="color" type="color">
+        <label>Footer Text</label>
+        <input data-goodbye-field="footerText" maxlength="256">
+      </div>
     </div>
   </div>
 </div>

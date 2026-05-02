@@ -127,6 +127,10 @@ saveBtn.onclick = async () => {
 async function boot(){
   await hydrateAuthStateFromServer();
 
+  const allowed = await requirePageAccess();
+
+  if(!allowed) return;
+
   if(!currentUser){
     saveResult.textContent = "Login with Discord to customize server settings.";
     return;
@@ -148,6 +152,30 @@ async function boot(){
   }catch(err){
     saveResult.textContent = err.message || "Failed to load your servers.";
     saveResult.style.color = "#c54b67";
+  }
+}
+
+async function requirePageAccess(){
+  try{
+    const access = await apiFetch("/web-config/access/customization");
+
+    if(access.allowed){
+      return true;
+    }
+
+    document.querySelector(".container").innerHTML = `
+      <div class="card">
+        <h1>Page Locked</h1>
+        <p class="helper">This page is currently locked by the creator.</p>
+        <button id="lockedLoginBtn" type="button">Login with Discord</button>
+      </div>
+    `;
+
+    const lockedLoginBtn = document.getElementById("lockedLoginBtn");
+    lockedLoginBtn.onclick = loginBtn.onclick;
+    return false;
+  }catch{
+    return true;
   }
 }
 

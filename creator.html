@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miri Creator Panel</title>
+<script src="site.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.creator-layout{
+display:grid;
+grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);
+gap:14px;
+align-items:start;
+}
+.photo-list{
+display:grid;
+gap:10px;
+}
+.photo-item{
+display:grid;
+grid-template-columns:86px minmax(0,1fr) auto;
+gap:10px;
+align-items:center;
+background:var(--surface-alt);
+border:1px solid var(--border);
+border-radius:12px;
+padding:8px;
+}
+.photo-item img{
+width:86px;
+height:64px;
+object-fit:cover;
+border-radius:8px;
+border:1px solid var(--border);
+}
+.danger-btn{
+background:var(--danger);
+color:white;
+padding:8px 10px;
+}
+.lock-list{
+display:grid;
+gap:8px;
+}
+.lock-row{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:12px;
+background:var(--surface-alt);
+border:1px solid var(--border);
+border-radius:12px;
+padding:10px;
+}
+.lock-row input{
+width:auto;
+}
+#saveResult{
+font-weight:700;
+margin-top:10px;
+}
+@media (max-width:860px){
+.creator-layout{grid-template-columns:1fr;}
+}
+@media (max-width:560px){
+.photo-item{grid-template-columns:70px minmax(0,1fr);}
+.photo-item button{grid-column:1/-1;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="top-nav">
+    <div class="nav-links">
+      <a href="/">About</a>
+      <a href="/chat.html">Chat</a>
+      <a href="/stats.html">Stats</a>
+      <a href="/settings.html">Settings</a>
+      <a href="/customization.html">Customization</a>
+      <a href="/creator.html" data-creator-only>Creator</a>
+    </div>
+    <div class="identity-row">
+      <span data-identity></span>
+      <button type="button" data-login-btn>Login</button>
+      <button type="button" data-logout-btn>Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Creator Panel</h1>
+    <p class="muted">Edit the public About page and lock pages you do not want other people to access.</p>
+
+    <div class="creator-layout">
+      <section class="card">
+        <h2>About Page</h2>
+        <div class="field">
+          <label for="aboutTitleInput">Title</label>
+          <input id="aboutTitleInput" maxlength="120">
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label for="aboutSubtitleInput">Subtitle</label>
+          <input id="aboutSubtitleInput" maxlength="220">
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label for="aboutBodyInput">Body</label>
+          <textarea id="aboutBodyInput" maxlength="5000"></textarea>
+        </div>
+        <div class="field" style="margin-top:10px;">
+          <label for="photoUploadInput">Upload Photos</label>
+          <input id="photoUploadInput" type="file" accept="image/*" multiple>
+          <p class="muted">Photos are stored with the About page. Keep them reasonably small for faster loading.</p>
+        </div>
+        <div id="photoList" class="photo-list" style="margin-top:10px;"></div>
+      </section>
+
+      <aside class="card">
+        <h2>Page Locks</h2>
+        <p class="muted">Locked pages are hidden from everyone except you.</p>
+        <div id="lockList" class="lock-list"></div>
+        <div class="button-row" style="margin-top:14px;">
+          <button id="saveCreatorBtn" class="primary-btn" type="button">Save Changes</button>
+        </div>
+        <div id="saveResult" class="muted"></div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<script src="creator.js"></script>
+</body>
+</html>

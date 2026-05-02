@@ -1,6 +1,13 @@
 const lightThemeBtn = document.getElementById("lightThemeBtn");
 const darkThemeBtn = document.getElementById("darkThemeBtn");
 
+bootSettings();
+
+async function bootSettings(){
+  await hydrateShell();
+  await requirePageAccess("settings");
+}
+
 function setTheme(theme){
   const normalizedTheme = theme === "dark" ? "dark" : "light";
 

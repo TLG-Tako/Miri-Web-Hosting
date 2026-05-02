@@ -4,82 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Miri Settings</title>
-<script>
-(function(){
-const theme = localStorage.getItem("miri_theme") || "light";
-document.documentElement.dataset.theme = theme;
-})();
-</script>
+<script src="site.js"></script>
+<link rel="stylesheet" href="shared.css">
 <style>
-:root{
---bg:#eef2ff;
---surface:#ffffff;
---surface-alt:#f8faff;
---text:#1c1f2a;
---muted:#6a7084;
---primary:#3358ff;
---primary-dark:#2446dd;
---border:#dbe3ff;
-}
-
-:root[data-theme="dark"]{
---bg:#111827;
---surface:#172033;
---surface-alt:#202a40;
---text:#edf3ff;
---muted:#a9b4cc;
---primary:#7c9cff;
---primary-dark:#5e7cff;
---border:#33415f;
-}
-
-*{box-sizing:border-box;}
-
-body{
-margin:0;
-padding:24px 14px 40px;
-font-family:"Segoe UI",Tahoma,sans-serif;
-background:radial-gradient(circle at 0% 0%,#ffffff 0%,var(--bg) 45%,#e9edff 100%);
-color:var(--text);
-}
-
-:root[data-theme="dark"] body{
-background:radial-gradient(circle at 0% 0%,#24304b 0%,var(--bg) 48%,#0b1020 100%);
-}
-
-.container{
-max-width:820px;
-margin:0 auto;
-}
-
-.top-nav{
-display:flex;
-justify-content:flex-end;
-gap:8px;
-margin-bottom:16px;
-}
-
-.top-nav a{
-text-decoration:none;
-padding:8px 12px;
-border-radius:8px;
-background:#1f2a52;
-color:white;
-font-size:13px;
-font-weight:600;
-}
-
-h1{margin:0 0 4px;}
-.subtitle{color:var(--muted);margin-bottom:18px;}
-
-.card{
-background:var(--surface);
-border:1px solid var(--border);
-border-radius:14px;
-box-shadow:0 10px 30px rgba(39,56,130,0.08);
-padding:16px;
-}
-
+.settings-card{max-width:820px;}
 .setting-row{
 display:flex;
 align-items:center;
@@ -87,19 +15,11 @@ justify-content:space-between;
 gap:16px;
 padding:8px 0;
 }
-
 .setting-title{
 font-size:16px;
 font-weight:700;
 margin-bottom:4px;
 }
-
-.setting-copy{
-color:var(--muted);
-font-size:13px;
-line-height:1.4;
-}
-
 .theme-toggle{
 display:grid;
 grid-template-columns:1fr 1fr;
@@ -110,7 +30,6 @@ border-radius:10px;
 background:var(--surface-alt);
 min-width:190px;
 }
-
 .theme-toggle button{
 border:none;
 border-radius:7px;
@@ -120,12 +39,10 @@ color:var(--muted);
 cursor:pointer;
 font-weight:700;
 }
-
 .theme-toggle button[aria-pressed="true"]{
 background:var(--primary);
 color:white;
 }
-
 @media (max-width:620px){
 .setting-row{align-items:stretch;flex-direction:column;}
 .theme-toggle{width:100%;}
@@ -134,26 +51,39 @@ color:white;
 </head>
 <body>
 <div class="container">
-  <div class="top-nav">
-    <a href="/">Chat Dashboard</a>
-    <a href="/customization.html">Customization</a>
-  </div>
-
-  <h1>Miri Settings</h1>
-  <div class="subtitle">Adjust how the web dashboard looks on this device.</div>
-
-  <div class="card">
-    <div class="setting-row">
-      <div>
-        <div class="setting-title">Theme</div>
-        <div class="setting-copy">Choose between the light and dark dashboard themes.</div>
-      </div>
-      <div class="theme-toggle" role="group" aria-label="Theme">
-        <button id="lightThemeBtn" type="button">Light</button>
-        <button id="darkThemeBtn" type="button">Dark</button>
-      </div>
+  <nav class="top-nav">
+    <div class="nav-links">
+      <a href="/">About</a>
+      <a href="/chat.html">Chat</a>
+      <a href="/stats.html">Stats</a>
+      <a href="/settings.html">Settings</a>
+      <a href="/customization.html">Customization</a>
+      <a href="/creator.html" data-creator-only>Creator</a>
     </div>
-  </div>
+    <div class="identity-row">
+      <span data-identity></span>
+      <button type="button" data-login-btn>Login</button>
+      <button type="button" data-logout-btn>Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Miri Settings</h1>
+    <p class="muted">Adjust how the web dashboard looks on this device.</p>
+
+    <section class="card settings-card">
+      <div class="setting-row">
+        <div>
+          <div class="setting-title">Theme</div>
+          <div class="muted">Choose between the light and dark dashboard themes.</div>
+        </div>
+        <div class="theme-toggle" role="group" aria-label="Theme">
+          <button id="lightThemeBtn" type="button">Light</button>
+          <button id="darkThemeBtn" type="button">Dark</button>
+        </div>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script src="settings.js"></script>

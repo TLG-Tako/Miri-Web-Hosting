@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat with Miri</title>
+<script src="site.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.chat-card{padding:16px;}
+.chat-messages{
+height:430px;
+overflow-y:auto;
+border:1px solid var(--border);
+padding:12px;
+margin-bottom:14px;
+background:var(--surface-alt);
+border-radius:10px;
+}
+.message{
+margin-bottom:10px;
+padding:9px 11px;
+border-radius:9px;
+line-height:1.4;
+}
+.user-message{
+background:var(--primary);
+color:white;
+text-align:right;
+}
+.bot-message{
+background:var(--surface);
+color:var(--text);
+border:1px solid var(--border);
+}
+.message-identity-badge{
+display:inline-block;
+margin-bottom:6px;
+padding:2px 7px;
+border-radius:999px;
+font-size:11px;
+font-weight:700;
+background:rgba(255,255,255,0.22);
+color:#f3f6ff;
+}
+.message-text{
+white-space:pre-wrap;
+word-break:break-word;
+}
+.input-container{
+display:flex;
+gap:10px;
+}
+#messageInput{flex:1;}
+@media (max-width:620px){
+.input-container{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="top-nav">
+    <div class="nav-links">
+      <a href="/">About</a>
+      <a href="/chat.html">Chat</a>
+      <a href="/stats.html">Stats</a>
+      <a href="/settings.html">Settings</a>
+      <a href="/customization.html">Customization</a>
+      <a href="/creator.html" data-creator-only>Creator</a>
+    </div>
+    <div class="identity-row">
+      <span data-identity></span>
+      <button type="button" data-login-btn>Login</button>
+      <button type="button" data-logout-btn>Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <section class="card chat-card">
+      <h1>Chat with Miri</h1>
+      <p class="muted">A dedicated chat space, separate from status and diagnostics.</p>
+      <div id="chatMessages" class="chat-messages"></div>
+      <div class="input-container">
+        <input type="text" id="messageInput" placeholder="Type your message...">
+        <button id="sendButton" class="primary-btn" type="button">Send</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="chat.js"></script>
+</body>
+</html>

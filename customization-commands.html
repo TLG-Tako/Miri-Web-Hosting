@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miri Command Customization</title>
+<script src="site.js"></script>
+<link rel="stylesheet" href="shared.css">
+<style>
+.toolbar{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+align-items:end;
+margin-bottom:14px;
+}
+.toolbar .server-picker{
+min-width:280px;
+max-width:440px;
+flex:1;
+}
+.command-category{margin-bottom:14px;}
+.category-heading{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+margin-bottom:10px;
+}
+.category-heading h2{margin:0;}
+.command-list{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+gap:10px;
+}
+.command-card{
+background:var(--surface-alt);
+border:1px solid var(--border);
+border-radius:12px;
+padding:12px;
+display:grid;
+gap:8px;
+}
+.command-card-header{
+display:flex;
+justify-content:space-between;
+gap:12px;
+align-items:center;
+}
+.command-name{font-weight:800;}
+.command-description{
+color:var(--muted);
+font-size:13px;
+line-height:1.4;
+}
+.toggle{
+display:inline-flex;
+align-items:center;
+gap:8px;
+font-size:13px;
+font-weight:700;
+color:var(--muted);
+text-transform:none;
+letter-spacing:0;
+margin:0;
+}
+.toggle input{width:auto;}
+#saveResult{font-weight:700;}
+</style>
+</head>
+<body>
+<div class="container">
+  <nav class="top-nav">
+    <div class="nav-links">
+      <a href="/">About</a>
+      <a href="/chat.html">Chat</a>
+      <a href="/stats.html">Stats</a>
+      <a href="/settings.html">Settings</a>
+      <a href="/customization.html">Customization</a>
+      <a href="/creator.html" data-creator-only>Creator</a>
+    </div>
+    <div class="identity-row">
+      <span data-identity></span>
+      <button type="button" data-login-btn>Login</button>
+      <button type="button" data-logout-btn>Logout</button>
+    </div>
+  </nav>
+
+  <main>
+    <h1>Command Toggles</h1>
+    <p class="muted">Enable or disable Miri commands for a selected server.</p>
+
+    <section class="card">
+      <div class="toolbar">
+        <div class="server-picker">
+          <label for="guildSelect">Server</label>
+          <select id="guildSelect">
+            <option value="">Select a server...</option>
+          </select>
+        </div>
+        <button id="saveCommandsBtn" class="primary-btn" type="button" disabled>Save Command Settings</button>
+      </div>
+      <div id="saveResult" class="muted"></div>
+    </section>
+
+    <div id="commandsContainer"></div>
+  </main>
+</div>
+
+<script src="customization-commands.js"></script>
+</body>
+</html>

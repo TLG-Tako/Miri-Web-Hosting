@@ -162,6 +162,17 @@ margin-top:5px;
 }
 
 #saveResult{font-weight:600;}
+
+.secondary-link{
+text-decoration:none;
+background:var(--surface-alt);
+border:1px solid var(--border);
+color:var(--text);
+padding:10px 14px;
+border-radius:8px;
+font-size:14px;
+font-weight:700;
+}
 </style>
 </head>
 <body>
@@ -172,6 +183,7 @@ margin-top:5px;
       <a href="/chat.html">Chat</a>
       <a href="/stats.html">Stats</a>
       <a href="/settings.html">Settings</a>
+      <a href="/customization-commands.html">Commands</a>
       <a href="/creator.html">Creator</a>
     </div>
     <button id="loginBtn">Login with Discord</button>
@@ -196,6 +208,7 @@ margin-top:5px;
         </select>
       </div>
       <button id="saveBtn" disabled>Save Settings</button>
+      <a class="secondary-link" href="/customization-commands.html">Command Toggles</a>
     </div>
     <div class="helper">Only servers where you have Administrator or Manage Server permissions are shown.</div>
     <div id="saveResult" class="helper" style="margin-top:8px;"></div>

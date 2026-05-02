@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Miri Customization Dashboard</title>
+<script>
+(function(){
+const theme = localStorage.getItem("miri_theme") || "light";
+document.documentElement.dataset.theme = theme;
+})();
+</script>
 <style>
 :root{
 --bg:#edf3ff;
@@ -18,6 +24,19 @@
 --border:#d6e1ff;
 }
 
+:root[data-theme="dark"]{
+--bg:#111827;
+--surface:#172033;
+--surface-alt:#202a40;
+--text:#edf3ff;
+--muted:#a9b4cc;
+--primary:#7c9cff;
+--primary-dark:#5e7cff;
+--danger:#f06b8c;
+--success:#34c98a;
+--border:#33415f;
+}
+
 *{box-sizing:border-box;}
 
 body{
@@ -26,6 +45,10 @@ padding:24px 14px 40px;
 font-family:"Segoe UI",Tahoma,sans-serif;
 background:radial-gradient(circle at 0% 0%,#fff 0%,var(--bg) 46%,#e4ebff 100%);
 color:var(--text);
+}
+
+:root[data-theme="dark"] body{
+background:radial-gradient(circle at 0% 0%,#24304b 0%,var(--bg) 48%,#0b1020 100%);
 }
 
 .container{
@@ -37,7 +60,13 @@ margin:0 auto;
 display:flex;
 justify-content:space-between;
 align-items:center;
+gap:8px;
 margin-bottom:16px;
+}
+
+.nav-links{
+display:flex;
+gap:8px;
 }
 
 .top-nav a{
@@ -91,9 +120,11 @@ margin-bottom:12px;
 select,input{
 width:100%;
 padding:9px;
-border:1px solid #cad8ff;
+border:1px solid var(--border);
 border-radius:8px;
 font-size:14px;
+background:var(--surface);
+color:var(--text);
 }
 
 select[multiple]{
@@ -136,7 +167,10 @@ margin-top:5px;
 <body>
 <div class="container">
   <div class="top-nav">
-    <a href="/">Back to Chat Dashboard</a>
+    <div class="nav-links">
+      <a href="/">Back to Chat Dashboard</a>
+      <a href="/settings.html">Settings</a>
+    </div>
     <button id="loginBtn">Login with Discord</button>
   </div>
 

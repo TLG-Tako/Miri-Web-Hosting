@@ -296,17 +296,27 @@ function applyGuildResources(resources){
     const fieldName = select.dataset.channelField;
     const filteredChannels = filterChannelsForField(fieldName, channels);
     populateChannelSingleSelect(select, filteredChannels, channel => {
-      return `${channel.mention} #${channel.name} (${channel.typeLabel})`;
+      return getChannelLabel(channel);
     });
   });
 
   document.querySelectorAll("[data-role-field]").forEach(select => {
-    populateSingleSelect(select, roles, role => `${role.mention} @${role.name}`);
+    populateSingleSelect(select, roles, role => getRoleLabel(role));
   });
 
   document.querySelectorAll("[data-channel-array-field]").forEach(select => {
-    populateChannelMultiSelect(select, channels, channel => `${channel.mention} #${channel.name} (${channel.typeLabel})`);
+    populateChannelMultiSelect(select, channels, channel => getChannelLabel(channel));
   });
+}
+
+function getChannelLabel(channel){
+  const prefix = Number(channel.type) === 4 ? "" : "#";
+  const typeLabel = channel.typeLabel ? ` (${channel.typeLabel})` : "";
+  return `${prefix}${channel.name}${typeLabel}`;
+}
+
+function getRoleLabel(role){
+  return `@${role.name}`;
 }
 
 function getCategoryGroupedChannels(channels){
@@ -370,7 +380,7 @@ function populateChannelSingleSelect(select, channels, labelBuilder){
     const categoryHeader = document.createElement("option");
     categoryHeader.value = "";
     categoryHeader.disabled = true;
-    categoryHeader.textContent = `— ${group.category.name} —`;
+    categoryHeader.textContent = `-- ${group.category.name} --`;
     select.appendChild(categoryHeader);
 
     for(const child of group.children){
@@ -398,7 +408,7 @@ function populateChannelMultiSelect(select, channels, labelBuilder){
     const categoryHeader = document.createElement("option");
     categoryHeader.value = "";
     categoryHeader.disabled = true;
-    categoryHeader.textContent = `— ${group.category.name} —`;
+    categoryHeader.textContent = `-- ${group.category.name} --`;
     select.appendChild(categoryHeader);
 
     for(const child of group.children){

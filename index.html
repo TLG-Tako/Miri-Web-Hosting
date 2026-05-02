@@ -6,6 +6,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Miri AI Dashboard</title>
+<script>
+(function(){
+const theme = localStorage.getItem("miri_theme") || "light";
+document.documentElement.dataset.theme = theme;
+})();
+</script>
 
 <style>
 :root{
@@ -21,6 +27,19 @@
 --border:#dbe3ff;
 }
 
+:root[data-theme="dark"]{
+--bg:#111827;
+--surface:#172033;
+--surface-alt:#202a40;
+--text:#edf3ff;
+--muted:#a9b4cc;
+--primary:#7c9cff;
+--primary-dark:#5e7cff;
+--success:#34c98a;
+--danger:#f06b8c;
+--border:#33415f;
+}
+
 *{
 box-sizing:border-box;
 }
@@ -34,6 +53,10 @@ background:radial-gradient(circle at 0% 0%,#ffffff 0%,var(--bg) 45%,#e9edff 100%
 color:var(--text);
 }
 
+:root[data-theme="dark"] body{
+background:radial-gradient(circle at 0% 0%,#24304b 0%,var(--bg) 48%,#0b1020 100%);
+}
+
 h1{
 margin-bottom:20px;
 }
@@ -41,6 +64,7 @@ margin-bottom:20px;
 .top-nav{
 display:flex;
 justify-content:flex-end;
+gap:8px;
 margin-bottom:12px;
 }
 
@@ -157,7 +181,7 @@ overflow-y:auto;
 border:1px solid var(--border);
 padding:12px;
 margin-bottom:14px;
-background:#fbfcff;
+background:var(--surface-alt);
 border-radius:10px;
 }
 
@@ -192,8 +216,9 @@ word-break:break-word;
 }
 
 .bot-message{
-background:#eef3ff;
-color:#263050;
+background:var(--surface-alt);
+color:var(--text);
+border:1px solid var(--border);
 }
 
 .input-container{
@@ -205,9 +230,11 @@ margin-bottom:12px;
 #messageInput{
 flex:1;
 padding:11px;
-border:1px solid #cfd9ff;
+border:1px solid var(--border);
 border-radius:8px;
 font-size:15px;
+background:var(--surface);
+color:var(--text);
 }
 
 button{
@@ -251,6 +278,7 @@ justify-content:flex-start;
 <body>
 
 <div class="top-nav">
+  <a href="/settings.html">Settings</a>
   <a href="/customization.html">Open Customization</a>
 </div>
 

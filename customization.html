@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miri Customization Dashboard</title>
+<style>
+:root{
+--bg:#edf3ff;
+--surface:#ffffff;
+--surface-alt:#f7f9ff;
+--text:#1d2433;
+--muted:#677086;
+--primary:#2f56ff;
+--primary-dark:#1f43d4;
+--danger:#c54b67;
+--success:#1f9a66;
+--border:#d6e1ff;
+}
+
+*{box-sizing:border-box;}
+
+body{
+margin:0;
+padding:24px 14px 40px;
+font-family:"Segoe UI",Tahoma,sans-serif;
+background:radial-gradient(circle at 0% 0%,#fff 0%,var(--bg) 46%,#e4ebff 100%);
+color:var(--text);
+}
+
+.container{
+max-width:1100px;
+margin:0 auto;
+}
+
+.top-nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:16px;
+}
+
+.top-nav a{
+text-decoration:none;
+background:#232f57;
+color:#fff;
+padding:9px 12px;
+border-radius:8px;
+font-size:13px;
+font-weight:600;
+}
+
+h1{margin:0 0 4px;}
+.subtitle{color:var(--muted);margin-bottom:18px;}
+
+.card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:14px;
+box-shadow:0 10px 30px rgba(38,56,130,0.08);
+padding:16px;
+margin-bottom:14px;
+}
+
+#identityPanel{display:none;align-items:center;gap:10px;}
+#userAvatar{width:38px;height:38px;border-radius:50%;}
+#userName{font-weight:600;}
+.spacer{flex:1;}
+
+button{
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:600;
+font-size:14px;
+}
+
+#loginBtn{background:var(--success);color:#fff;padding:10px 14px;}
+#logoutBtn{background:var(--danger);color:#fff;padding:8px 12px;}
+#saveBtn{background:var(--primary);color:#fff;padding:11px 18px;}
+#saveBtn:hover{background:var(--primary-dark);}
+
+.toolbar{
+display:flex;
+flex-wrap:wrap;
+gap:10px;
+align-items:center;
+margin-bottom:12px;
+}
+
+select,input{
+width:100%;
+padding:9px;
+border:1px solid #cad8ff;
+border-radius:8px;
+font-size:14px;
+}
+
+.toolbar select{min-width:280px;max-width:440px;}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+gap:12px;
+}
+
+.field{
+background:var(--surface-alt);
+border:1px solid var(--border);
+border-radius:12px;
+padding:10px;
+}
+
+.field label{
+display:block;
+font-size:12px;
+text-transform:uppercase;
+letter-spacing:.07em;
+color:var(--muted);
+margin-bottom:6px;
+}
+
+.helper{
+color:var(--muted);
+font-size:12px;
+margin-top:5px;
+}
+
+#saveResult{font-weight:600;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="top-nav">
+    <a href="/">Back to Chat Dashboard</a>
+    <button id="loginBtn">Login with Discord</button>
+  </div>
+
+  <h1>Miri Server Customization</h1>
+  <div class="subtitle">Manage server setup from the web dashboard instead of running multiple setup commands.</div>
+
+  <div id="identityPanel" class="card">
+    <img id="userAvatar" alt="Discord avatar">
+    <div id="userName"></div>
+    <div class="spacer"></div>
+    <button id="logoutBtn">Logout</button>
+  </div>
+
+  <div class="card">
+    <div class="toolbar">
+      <div>
+        <label for="guildSelect"><strong>Server</strong></label>
+        <select id="guildSelect">
+          <option value="">Select a server...</option>
+        </select>
+      </div>
+      <button id="saveBtn" disabled>Save Settings</button>
+    </div>
+    <div class="helper">Only servers where you have Administrator or Manage Server permissions are shown.</div>
+    <div id="saveResult" class="helper" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="card">
+    <h3>Channels</h3>
+    <div class="grid">
+      <div class="field"><label>Mod Channel ID</label><input data-field="modChannel"></div>
+      <div class="field"><label>Admin Channel ID</label><input data-field="adminChannel"></div>
+      <div class="field"><label>Discipline Channel ID</label><input data-field="disciplineChannel"></div>
+      <div class="field"><label>Ticket Category ID</label><input data-field="ticketCategory"></div>
+      <div class="field"><label>Welcome Channel ID</label><input data-field="welcomeChannel"></div>
+      <div class="field"><label>Goodbye Channel ID</label><input data-field="goodbyeChannel"></div>
+      <div class="field"><label>Rules Channel ID</label><input data-field="rulesChannel"></div>
+      <div class="field"><label>RP Notify Channel ID</label><input data-field="rpNotifyChannel"></div>
+      <div class="field"><label>Counting Channel ID</label><input data-field="countingChannel"></div>
+      <div class="field"><label>Auto Purge Channel IDs</label><input data-array-field="autoPurgeChannels" placeholder="123, 456, 789"></div>
+      <div class="field"><label>Currency Channel IDs</label><input data-array-field="currencyChannels" placeholder="123, 456, 789"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Roles</h3>
+    <div class="grid">
+      <div class="field"><label>Staff Role ID</label><input data-field="staffRole"></div>
+      <div class="field"><label>Admin Role ID</label><input data-field="adminRole"></div>
+      <div class="field"><label>Moderator Role ID</label><input data-field="moderatorRole"></div>
+      <div class="field"><label>Unverified Role ID</label><input data-field="unverifiedRole"></div>
+      <div class="field"><label>Verified Role ID</label><input data-field="verifiedRole"></div>
+      <div class="field"><label>Welcome Role ID</label><input data-field="welcomeRole"></div>
+      <div class="field"><label>Muted Role ID</label><input data-field="mutedRole"></div>
+      <div class="field"><label>Reward Role ID</label><input data-field="rewardRole"></div>
+      <div class="field"><label>Music Role ID</label><input data-field="musicRole"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Economy & Misc</h3>
+    <div class="grid">
+      <div class="field"><label>Currency Name</label><input data-field="currencyName"></div>
+      <div class="field"><label>Currency Emoji</label><input data-field="currencyEmoji"></div>
+      <div class="field"><label>Music Duration (seconds)</label><input data-number-field="musicDuration" type="number" min="0"></div>
+    </div>
+  </div>
+</div>
+
+<script src="customization.js"></script>
+</body>
+</html>

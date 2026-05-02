@@ -8,121 +8,251 @@
 <title>Miri AI Dashboard</title>
 
 <style>
+:root{
+--bg:#eef2ff;
+--surface:#ffffff;
+--surface-alt:#f8faff;
+--text:#1c1f2a;
+--muted:#6a7084;
+--primary:#3358ff;
+--primary-dark:#2446dd;
+--success:#23a66f;
+--danger:#cb4365;
+--border:#dbe3ff;
+}
+
+*{
+box-sizing:border-box;
+}
 
 body{
-font-family:Arial,sans-serif;
-max-width:800px;
+font-family:"Segoe UI",Tahoma,sans-serif;
+max-width:980px;
 margin:0 auto;
-padding:20px;
-background:#f5f5f5;
+padding:24px 16px 40px;
+background:radial-gradient(circle at 0% 0%,#ffffff 0%,var(--bg) 45%,#e9edff 100%);
+color:var(--text);
+}
+
+h1{
+margin-bottom:20px;
+}
+
+.top-nav{
+display:flex;
+justify-content:flex-end;
+margin-bottom:12px;
+}
+
+.top-nav a{
+text-decoration:none;
+padding:8px 12px;
+border-radius:8px;
+background:#1f2a52;
+color:white;
+font-size:13px;
+font-weight:600;
+}
+
+.card{
+background:var(--surface);
+border:1px solid var(--border);
+border-radius:14px;
+box-shadow:0 10px 30px rgba(39,56,130,0.08);
 }
 
 .status{
 text-align:center;
-margin-bottom:30px;
-padding:20px;
-border-radius:10px;
-font-size:18px;
-font-weight:bold;
+margin-bottom:18px;
+padding:14px;
+border-radius:12px;
+font-size:16px;
+font-weight:600;
 }
 
 .online{
-background:#d4edda;
-color:#155724;
-border:1px solid #c3e6cb;
+background:#e9fff5;
+color:#15603f;
+border:1px solid #b2ebcf;
 }
 
 .offline{
-background:#f8d7da;
-color:#721c24;
-border:1px solid #f5c6cb;
+background:#fff0f3;
+color:#872847;
+border:1px solid #f6c4d1;
 }
 
-.stats{
-background:white;
-padding:15px;
-border-radius:10px;
-margin-bottom:20px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+.state-panel{
+padding:16px;
+margin-bottom:16px;
 }
 
-.stats div{
-margin:6px 0;
-font-size:16px;
+.state-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+gap:12px;
+}
+
+.state-item{
+background:var(--surface-alt);
+border:1px solid var(--border);
+border-radius:12px;
+padding:12px;
+}
+
+.state-item .label{
+display:block;
+font-size:12px;
+text-transform:uppercase;
+letter-spacing:.08em;
+color:var(--muted);
+margin-bottom:6px;
+}
+
+.state-item .value{
+font-size:15px;
+font-weight:600;
+line-height:1.3;
+}
+
+.wide{
+grid-column:1/-1;
+}
+
+.identity-note{
+font-size:13px;
+color:var(--muted);
+margin-top:10px;
+}
+
+#userPanel{
+display:none;
+margin-bottom:16px;
+padding:10px 12px;
+align-items:center;
+gap:8px;
+}
+
+#userAvatar{
+width:36px;
+height:36px;
+border-radius:50%;
+}
+
+#userName{
+font-weight:600;
+}
+
+.spacer{
+flex:1;
 }
 
 .chat-container{
-background:white;
-border-radius:10px;
-padding:20px;
-box-shadow:0 2px 10px rgba(0,0,0,0.1);
+padding:16px;
 }
 
 .chat-messages{
-height:400px;
+height:360px;
 overflow-y:auto;
-border:1px solid #ddd;
-padding:10px;
-margin-bottom:20px;
-background:#fafafa;
-border-radius:5px;
+border:1px solid var(--border);
+padding:12px;
+margin-bottom:14px;
+background:#fbfcff;
+border-radius:10px;
 }
 
 .message{
 margin-bottom:10px;
-padding:8px;
-border-radius:5px;
+padding:9px 11px;
+border-radius:9px;
+line-height:1.4;
 }
 
 .user-message{
-background:#007bff;
+background:var(--primary);
 color:white;
 text-align:right;
 }
 
+.message-identity-badge{
+display:inline-block;
+margin-bottom:6px;
+padding:2px 7px;
+border-radius:999px;
+font-size:11px;
+font-weight:700;
+letter-spacing:.02em;
+background:rgba(255,255,255,0.22);
+color:#f3f6ff;
+}
+
+.message-text{
+white-space:pre-wrap;
+word-break:break-word;
+}
+
 .bot-message{
-background:#e9ecef;
-color:#333;
+background:#eef3ff;
+color:#263050;
 }
 
 .input-container{
 display:flex;
 gap:10px;
+margin-bottom:12px;
 }
 
 #messageInput{
 flex:1;
-padding:10px;
-border:1px solid #ddd;
-border-radius:5px;
-font-size:16px;
+padding:11px;
+border:1px solid #cfd9ff;
+border-radius:8px;
+font-size:15px;
+}
+
+button{
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+font-weight:600;
 }
 
 #sendButton{
-padding:10px 20px;
-background:#007bff;
+padding:11px 18px;
+background:var(--primary);
 color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-font-size:16px;
+}
+
+#sendButton:hover{
+background:var(--primary-dark);
 }
 
 #loginBtn{
-padding:10px 20px;
-background:#28a745;
+padding:10px 16px;
+background:var(--success);
 color:white;
-border:none;
-border-radius:5px;
-cursor:pointer;
-font-size:16px;
 }
 
+#logoutBtn{
+padding:8px 12px;
+background:var(--danger);
+color:white;
+}
+
+.login-container{
+display:flex;
+justify-content:flex-start;
+}
 </style>
 
 </head>
 
 <body>
+
+<div class="top-nav">
+  <a href="/customization.html">Open Customization</a>
+</div>
 
 <h1>Miri AI Dashboard</h1>
 
@@ -130,24 +260,44 @@ font-size:16px;
 Checking status...
 </div>
 
-<div class="stats">
-<div id="mood">🧠 Mood: ...</div>
-<div id="diary">📖 Diary: ...</div>
-<div id="thoughts">💭 Thoughts: ...</div>
-<div id="vision">👁 Vision: ...</div>
+<div class="state-panel card">
+  <div class="state-grid">
+    <div class="state-item">
+      <span class="label">Mood</span>
+      <div id="mood" class="value">Loading...</div>
+    </div>
+    <div class="state-item">
+      <span class="label">Emotions</span>
+      <div id="emotions" class="value">Loading...</div>
+    </div>
+    <div class="state-item">
+      <span class="label">Energy</span>
+      <div id="energy" class="value">Loading...</div>
+    </div>
+    <div class="state-item wide">
+      <span class="label">Active Thoughts</span>
+      <div id="thoughts" class="value">Loading...</div>
+    </div>
+    <div class="state-item wide">
+      <span class="label">Diary Snapshot</span>
+      <div id="diary" class="value">Loading...</div>
+    </div>
+    <div class="state-item wide">
+      <span class="label">Vision Focus</span>
+      <div id="vision" class="value">Loading...</div>
+    </div>
+  </div>
+  <div id="authHint" class="identity-note">Login with Discord so Miri can identify who she is talking to.</div>
 </div>
 
-<div id="userPanel" style="display:none; margin-bottom:20px; background:white; padding:10px; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,0.1);">
-
-<img id="userAvatar" width="40" height="40" style="border-radius:50%; vertical-align:middle; margin-right:10px;">
-
+<div id="userPanel" class="card">
+<img id="userAvatar" alt="Discord avatar">
 <span id="userName"></span>
-
-<button id="logoutBtn" style="float:right;">Logout</button>
-
+<div class="spacer"></div>
+<button id="logoutBtn">Logout</button>
 </div>
 
-<div class="chat-container">
+<div class="chat-container card">
 
 <h2>Chat with Miri</h2>
 

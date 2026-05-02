@@ -10,41 +10,46 @@ const userPanel = document.getElementById("userPanel");
 const userName = document.getElementById("userName");
 const userAvatar = document.getElementById("userAvatar");
 const logoutBtn = document.getElementById("logoutBtn");
-const token = new URLSearchParams(window.location.search).get("token");
+const loginBtn = document.getElementById("loginBtn");
+const authHint = document.getElementById("authHint");
+let currentUser = null;
 
 const urlToken = new URLSearchParams(window.location.search).get("token");
 
 if(urlToken){
   localStorage.setItem("miri_token", urlToken);
-  window.history.replaceState({}, document.title, "/");
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
 
 const savedToken = localStorage.getItem("miri_token");
 
 if(savedToken){
+  currentUser = parseJwt(savedToken);
 
-  const user = parseJwt(savedToken);
-
-  if(user){
-
-    userPanel.style.display = "block";
-
-    userName.textContent = `👤 Logged in as ${user.username}`;
-
-    userAvatar.src =
-      `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`;
-
+  if(currentUser){
+    userPanel.style.display = "flex";
+    userName.textContent = `👤 Logged in as ${currentUser.username}`;
+    if(currentUser.avatar){
+      userAvatar.src =
+        `https://cdn.discordapp.com/avatars/${currentUser.id}/${currentUser.avatar}.png`;
+    }else{
+      userAvatar.src = `https://cdn.discordapp.com/embed/avatars/${Number(currentUser.discriminator || 0) % 5}.png`;
+    }
+    authHint.textContent = `Miri can identify you as ${currentUser.username}.`;
+    loginBtn.style.display = "none";
   }
-
 }
 
-document.getElementById("loginBtn").onclick=()=>{
-  window.location.href = `${API_BASE}/login`;
+loginBtn.onclick=()=>{
+  const returnTo = encodeURIComponent(window.location.pathname);
+  window.location.href = `${API_BASE}/login?returnTo=${returnTo}`;
 };
 
 logoutBtn.onclick = () => {
 
   localStorage.removeItem("miri_token");
+
+  currentUser = null;
 
   location.reload();
 
@@ -94,13 +99,18 @@ const res = await fetch(`${API_BASE}/stats`);
 const data = await res.json();
 
 document.getElementById("mood").textContent =
-`🧠 Mood: ${data.mood || "unknown"} | Energy: ${data.energy || "?"}`;
+`${toTitleCase(data.mood || data.state?.mood || "unknown")}`;
+
+const emotions = normalizeEmotions(data.emotions || data.state?.emotions || data.emotion || data.feelings);
+document.getElementById("emotions").textContent = emotions || "None";
+
+document.getElementById("energy").textContent = `${formatEnergy(data.energy || data.state?.energy)}`;
 
 document.getElementById("diary").textContent =
-`📖 Diary: ${data.diary?.summary || "None"}`;
+`${data.diary?.summary || data.diarySummary || "None"}`;
 
 document.getElementById("vision").textContent =
-`👁 Vision: ${data.vision?.[0] || "None"}`;
+`${data.vision?.[0] || data.focus || "None"}`;
 
 }catch(err){
 
@@ -123,11 +133,13 @@ const data = await res.json();
 const entries = Object.entries(data.thoughts || {});
 
 const formatted = entries
-.map(([k,v]) => `${k} (${v.toFixed(2)})`)
+.sort((a,b) => b[1] - a[1])
+.slice(0,6)
+.map(([k,v]) => `${k} (${Number(v).toFixed(2)})`)
 .join(", ");
 
 document.getElementById("thoughts").textContent =
-`💭 Thoughts: ${formatted || "None"}`;
+`${formatted || "None"}`;
 
 }catch(err){
 
@@ -154,14 +166,28 @@ sendButton.disabled=true;
 try{
 
 const token = localStorage.getItem("miri_token");
+const headers = {
+  "Content-Type":"application/json"
+};
+
+if(token){
+  headers.Authorization = token;
+}
+
 const res = await fetch(`${API_BASE}/chat`,{
 method:"POST",
 
-headers:{
-  "Content-Type":"application/json",
-  "Authorization":token
-},
-body:JSON.stringify({message})
+headers,
+body:JSON.stringify({
+  message,
+  userContext: currentUser
+    ? {
+        id: currentUser.id,
+        username: currentUser.username,
+        globalName: currentUser.global_name || null
+      }
+    : null
+})
 });
 
 const data = await res.json();
@@ -184,12 +210,64 @@ const div=document.createElement("div");
 
 div.className=`message ${type}-message`;
 
+if(type === "user"){
+const badge = document.createElement("div");
+badge.className = "message-identity-badge";
+badge.textContent = `Logged in as ${getActiveIdentityLabel()}`;
+
+const body = document.createElement("div");
+body.className = "message-text";
+body.textContent = text;
+
+div.appendChild(badge);
+div.appendChild(body);
+}else{
 div.textContent=text;
+}
 
 chatMessages.appendChild(div);
 
 chatMessages.scrollTop=chatMessages.scrollHeight;
 
+}
+
+function getActiveIdentityLabel(){
+if(currentUser?.global_name) return currentUser.global_name;
+if(currentUser?.username) return currentUser.username;
+return "Guest";
+}
+
+function normalizeEmotions(rawEmotions){
+if(!rawEmotions) return "None";
+
+if(Array.isArray(rawEmotions)) return rawEmotions.join(", ");
+
+if(typeof rawEmotions === "string") return rawEmotions;
+
+if(typeof rawEmotions === "object"){
+return Object.entries(rawEmotions)
+.sort((a,b) => Number(b[1]) - Number(a[1]))
+.slice(0,4)
+.map(([emotion,weight]) => `${emotion} (${Number(weight).toFixed(2)})`)
+.join(", ");
+}
+
+return String(rawEmotions);
+}
+
+function formatEnergy(rawEnergy){
+if(rawEnergy === null || rawEnergy === undefined || rawEnergy === "") return "Unknown";
+
+if(typeof rawEnergy === "number") return `${Math.round(rawEnergy)}%`;
+
+return String(rawEnergy);
+}
+
+function toTitleCase(value){
+return String(value)
+.split(" ")
+.map(part => part ? part[0].toUpperCase() + part.slice(1) : part)
+.join(" ");
 }
 
 sendButton.onclick=sendMessage;

@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Miri Settings</title>
 <script src="site.js"></script>
+<script async src="https://js.stripe.com/v3/pricing-table.js"></script>
 <link rel="stylesheet" href="shared.css">
 <style>
 .settings-card{max-width:820px;}
@@ -110,17 +111,15 @@ color:var(--muted);
           <h2>Billing</h2>
           <p class="muted">Premium unlocks Miri's AI functionality for your server.</p>
         </div>
-        <div>
-          <div id="billingPrice" class="billing-price">Loading...</div>
-          <p id="billingNote" class="muted">Checking the current purchase link.</p>
-        </div>
         <ul class="billing-features">
           <li>AI chat responses and server-aware conversation.</li>
           <li>Memory, image-aware processing, and advanced context features.</li>
           <li>Premium must be enabled for the server before AI calls run.</li>
         </ul>
+        <stripe-pricing-table pricing-table-id="prctbl_1TT1JYEByNmzs7fuZquUbPx1"
+        publishable-key="pk_live_51TSzc9EByNmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKm4RAgmcrnE1SUej8Kq4OVhLLoZnZKrdLjRHylV00aDFOTSSP">
+        </stripe-pricing-table>
         <div class="button-row">
-          <a id="purchasePremiumLink" class="button-link" href="#" target="_blank" rel="noopener" style="display:none;">Purchase Premium</a>
           <a id="manageSubscriptionLink" class="button-link" href="https://billing.stripe.com/p/login/4gMdR91midqbgc80Vlbsc00" target="_blank" rel="noopener">Manage Subscription</a>
         </div>
       </section>

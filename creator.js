@@ -14,6 +14,7 @@ const capabilitiesInput = document.getElementById("capabilitiesInput");
 const benefitsTitleInput = document.getElementById("benefitsTitleInput");
 const benefitsInput = document.getElementById("benefitsInput");
 const photoUploadInput = document.getElementById("photoUploadInput");
+const purchaseUrlInput = document.getElementById("purchaseUrlInput");
 const photoList = document.getElementById("photoList");
 const lockList = document.getElementById("lockList");
 const saveCreatorBtn = document.getElementById("saveCreatorBtn");
@@ -43,11 +44,16 @@ async function loadCreatorConfig(){
   try{
     const config = await apiFetch("/web-config/creator");
     setAboutFields(config.about || {});
+    setBillingFields(config.billing || {});
     renderLocks(config.pageLocks || {});
     saveResult.textContent = "";
   }catch(err){
     saveResult.textContent = err.message || "Failed to load creator settings.";
   }
+}
+
+function setBillingFields(billing){
+  purchaseUrlInput.value = billing.purchaseUrl || "";
 }
 
 function setAboutFields(about){
@@ -202,6 +208,9 @@ async function saveCreatorConfig(){
       benefits: getLines(benefitsInput.value),
       images: aboutImages
     },
+    billing: {
+      purchaseUrl: purchaseUrlInput.value.trim()
+    },
     pageLocks: collectPageLocks()
   };
 
@@ -212,6 +221,7 @@ async function saveCreatorConfig(){
     });
 
     setAboutFields(saved.about || payload.about);
+    setBillingFields(saved.billing || payload.billing);
     renderLocks(saved.pageLocks || payload.pageLocks);
     saveResult.textContent = "Saved successfully.";
     saveResult.style.color = "var(--success)";

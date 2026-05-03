@@ -3,7 +3,9 @@ const statusDiv = document.getElementById("status");
 bootStats();
 
 async function bootStats(){
-  await hydrateShell();
+  const shell = await hydrateShell({ requireCreator: true });
+  if(!shell.allowed) return;
+
   const allowed = await requirePageAccess("stats");
 
   if(!allowed) return;

@@ -1,8 +1,10 @@
 const API_BASE = "https://miri-production.up.railway.app";
 const DISCORD_OAUTH_URL = "https://discord.com/oauth2/authorize?client_id=1482556887500066867&response_type=code&redirect_uri=https%3A%2F%2Fmiri-web-hosting.pages.dev%2Fcallback&scope=identify+guilds";
+const BOT_INVITE_URL = "https://discord.com/oauth2/authorize?client_id=1445389657272746127";
 
 const loginBtn = document.getElementById("loginBtn");
 const logoutBtn = document.getElementById("logoutBtn");
+const inviteBtn = document.getElementById("inviteBtn");
 const identityPanel = document.getElementById("identityPanel");
 const userName = document.getElementById("userName");
 const userAvatar = document.getElementById("userAvatar");
@@ -38,6 +40,7 @@ const CHANNEL_ARRAY_FIELDS = ["autoPurgeChannels", "currencyChannels"];
 
 let currentUser = null;
 let currentGuildId = "";
+let manageableGuildIds = new Set();
 
 const urlToken = new URLSearchParams(window.location.search).get("token");
 if(urlToken){
@@ -59,21 +62,27 @@ async function hydrateAuthStateFromServer(){
 
     if(data?.user){
       currentUser = data.user;
+      return;
     }
   }catch{
-    // no-op
+    localStorage.removeItem("miri_token");
   }
+
+  currentUser = null;
 }
 
 const token = localStorage.getItem("miri_token");
-if(token){
-  currentUser = parseJwt(token);
-}
 
 loginBtn.onclick = () => {
   localStorage.setItem("miri_post_auth_path", window.location.pathname || "/");
   window.location.href = DISCORD_OAUTH_URL;
 };
+
+if(inviteBtn){
+  inviteBtn.onclick = () => {
+    window.location.href = BOT_INVITE_URL;
+  };
+}
 
 logoutBtn.onclick = async () => {
   try{
@@ -91,10 +100,19 @@ logoutBtn.onclick = async () => {
 
 guildSelect.addEventListener("change", async () => {
   currentGuildId = guildSelect.value;
-  saveBtn.disabled = !currentGuildId;
+  saveBtn.disabled = !isManageableGuild(currentGuildId);
 
   if(!currentGuildId){
     clearFields();
+    return;
+  }
+
+  if(!isManageableGuild(currentGuildId)){
+    clearFields();
+    saveResult.textContent = "That server is not available for this authenticated Discord account.";
+    saveResult.style.color = "#c54b67";
+    currentGuildId = "";
+    guildSelect.value = "";
     return;
   }
 
@@ -102,7 +120,11 @@ guildSelect.addEventListener("change", async () => {
 });
 
 saveBtn.onclick = async () => {
-  if(!currentGuildId) return;
+  if(!isManageableGuild(currentGuildId)){
+    saveResult.textContent = "Select a server from your authenticated manageable server list before saving.";
+    saveResult.style.color = "#c54b67";
+    return;
+  }
 
   saveResult.textContent = "Saving...";
   saveResult.style.color = "#677086";
@@ -187,6 +209,10 @@ async function requirePageAccess(){
 function showIdentity(user){
   identityPanel.style.display = "flex";
   loginBtn.style.display = "none";
+  logoutBtn.style.display = "inline-flex";
+  document.querySelectorAll(".creator-nav").forEach(nav => {
+    nav.style.display = user.isCreator ? "block" : "none";
+  });
 
   userName.textContent = `Logged in as ${user.username}`;
 
@@ -199,8 +225,11 @@ function showIdentity(user){
 
 function fillGuildSelect(guilds){
   guildSelect.innerHTML = "<option value=\"\">Select a server...</option>";
+  manageableGuildIds = new Set();
 
   for(const guild of guilds){
+    if(!guild?.id) continue;
+    manageableGuildIds.add(String(guild.id));
     const option = document.createElement("option");
     option.value = guild.id;
     option.textContent = guild.name;
@@ -209,6 +238,10 @@ function fillGuildSelect(guilds){
 }
 
 async function loadSettings(guildId){
+  if(!isManageableGuild(guildId)){
+    throw new Error("That server is not available for this authenticated Discord account.");
+  }
+
   saveResult.textContent = "Loading settings...";
   saveResult.style.color = "#677086";
 
@@ -226,6 +259,10 @@ async function loadSettings(guildId){
     saveResult.textContent = err.message || "Failed to load settings.";
     saveResult.style.color = "#c54b67";
   }
+}
+
+function isManageableGuild(guildId){
+  return Boolean(guildId && manageableGuildIds.has(String(guildId)));
 }
 
 function setFields(settings){
@@ -556,16 +593,6 @@ async function apiFetch(path, options = {}){
   }
 
   return data;
-}
-
-function parseJwt(jwtToken){
-  try{
-    const base64Url = jwtToken.split(".")[1];
-    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64));
-  }catch{
-    return null;
-  }
 }
 
 boot();

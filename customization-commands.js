@@ -6,6 +6,7 @@ const commandsContainer = document.getElementById("commandsContainer");
 let commandCategories = [];
 let disabledCommands = new Set();
 let currentGuildId = "";
+let manageableGuildIds = new Set();
 
 bootCommandCustomization();
 
@@ -43,8 +44,11 @@ async function bootCommandCustomization(){
 
 function fillGuildSelect(guilds){
   guildSelect.innerHTML = "<option value=\"\">Select a server...</option>";
+  manageableGuildIds = new Set();
 
   for(const guild of guilds){
+    if(!guild?.id) continue;
+    manageableGuildIds.add(String(guild.id));
     const option = document.createElement("option");
     option.value = guild.id;
     option.textContent = guild.name;
@@ -54,10 +58,20 @@ function fillGuildSelect(guilds){
 
 async function handleGuildChange(){
   currentGuildId = guildSelect.value;
-  saveCommandsBtn.disabled = !currentGuildId;
+  saveCommandsBtn.disabled = !isManageableGuild(currentGuildId);
 
   if(!currentGuildId){
     disabledCommands = new Set();
+    renderCommands();
+    return;
+  }
+
+  if(!isManageableGuild(currentGuildId)){
+    disabledCommands = new Set();
+    currentGuildId = "";
+    guildSelect.value = "";
+    saveResult.textContent = "That server is not available for this authenticated Discord account.";
+    saveResult.style.color = "var(--danger)";
     renderCommands();
     return;
   }
@@ -85,8 +99,11 @@ function renderCommands(){
   }
 
   for(const category of commandCategories){
-    const section = document.createElement("section");
+    const section = document.createElement("details");
     section.className = "card command-category";
+    section.open = true;
+
+    const summary = document.createElement("summary");
 
     const heading = document.createElement("div");
     heading.className = "category-heading";
@@ -100,7 +117,8 @@ function renderCommands(){
 
     heading.appendChild(title);
     heading.appendChild(count);
-    section.appendChild(heading);
+    summary.appendChild(heading);
+    section.appendChild(summary);
 
     const list = document.createElement("div");
     list.className = "command-list";
@@ -161,7 +179,11 @@ function renderCommandCard(command){
 }
 
 async function saveCommandSettings(){
-  if(!currentGuildId) return;
+  if(!isManageableGuild(currentGuildId)){
+    saveResult.textContent = "Select a server from your authenticated manageable server list before saving.";
+    saveResult.style.color = "var(--danger)";
+    return;
+  }
 
   saveResult.textContent = "Saving command settings...";
   saveResult.style.color = "var(--muted)";
@@ -182,4 +204,8 @@ async function saveCommandSettings(){
     saveResult.textContent = err.message || "Failed to save command settings.";
     saveResult.style.color = "var(--danger)";
   }
+}
+
+function isManageableGuild(guildId){
+  return Boolean(guildId && manageableGuildIds.has(String(guildId)));
 }

@@ -8,6 +8,11 @@
 <link rel="stylesheet" href="shared.css">
 <style>
 .settings-card{max-width:820px;}
+.settings-stack{
+display:grid;
+gap:14px;
+max-width:820px;
+}
 .setting-row{
 display:flex;
 align-items:center;
@@ -43,6 +48,21 @@ font-weight:700;
 background:var(--primary);
 color:white;
 }
+.billing-panel{
+display:grid;
+gap:12px;
+}
+.billing-price{
+font-size:28px;
+line-height:1.1;
+font-weight:800;
+}
+.billing-features{
+margin:0;
+padding-left:18px;
+color:var(--muted);
+}
+.billing-features li{margin:6px 0;}
 @media (max-width:620px){
 .setting-row{align-items:stretch;flex-direction:column;}
 .theme-toggle{width:100%;}
@@ -56,8 +76,8 @@ color:white;
       <a href="/">About</a>
       <a href="/chat.html">Chat</a>
       <a href="/stats.html">Stats</a>
-      <a href="/settings.html">Settings</a>
       <a href="/customization.html">Customization</a>
+      <a href="/settings.html">Settings</a>
       <a href="/creator.html" data-creator-only>Creator</a>
     </div>
     <div class="identity-row">
@@ -71,18 +91,39 @@ color:white;
     <h1>Miri Settings</h1>
     <p class="muted">Adjust how the web dashboard looks on this device.</p>
 
-    <section class="card settings-card">
-      <div class="setting-row">
+    <div class="settings-stack">
+      <section class="card settings-card">
+        <div class="setting-row">
+          <div>
+            <div class="setting-title">Theme</div>
+            <div class="muted">Choose between the light and dark dashboard themes.</div>
+          </div>
+          <div class="theme-toggle" role="group" aria-label="Theme">
+            <button id="lightThemeBtn" type="button">Light</button>
+            <button id="darkThemeBtn" type="button">Dark</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="card settings-card billing-panel">
         <div>
-          <div class="setting-title">Theme</div>
-          <div class="muted">Choose between the light and dark dashboard themes.</div>
+          <h2>Billing</h2>
+          <p class="muted">Premium unlocks Miri's AI functionality for your server.</p>
         </div>
-        <div class="theme-toggle" role="group" aria-label="Theme">
-          <button id="lightThemeBtn" type="button">Light</button>
-          <button id="darkThemeBtn" type="button">Dark</button>
+        <div>
+          <div id="billingPrice" class="billing-price">Loading...</div>
+          <p id="billingNote" class="muted">Checking the current purchase link.</p>
         </div>
-      </div>
-    </section>
+        <ul class="billing-features">
+          <li>AI chat responses and server-aware conversation.</li>
+          <li>Memory, image-aware processing, and advanced context features.</li>
+          <li>Premium must be enabled for the server before AI calls run.</li>
+        </ul>
+        <div class="button-row">
+          <a id="purchasePremiumLink" class="button-link" href="#" target="_blank" rel="noopener" style="display:none;">Purchase Premium</a>
+        </div>
+      </section>
+    </div>
   </main>
 </div>
 

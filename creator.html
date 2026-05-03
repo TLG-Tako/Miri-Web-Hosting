@@ -76,8 +76,8 @@ margin-top:10px;
       <a href="/">About</a>
       <a href="/chat.html">Chat</a>
       <a href="/stats.html">Stats</a>
-      <a href="/settings.html">Settings</a>
       <a href="/customization.html">Customization</a>
+      <a href="/settings.html">Settings</a>
       <a href="/creator.html" data-creator-only>Creator</a>
     </div>
     <div class="identity-row">
@@ -133,6 +133,15 @@ margin-top:10px;
       </section>
 
       <aside class="card">
+        <h2>Billing</h2>
+        <div class="field">
+          <label for="purchaseUrlInput">Premium Purchase Link</label>
+          <input id="purchaseUrlInput" type="url" placeholder="https://...">
+          <p class="muted">The Settings page uses this link for Premium checkout and reads the displayed price from it when possible.</p>
+        </div>
+
+        <hr>
+
         <h2>Page Locks</h2>
         <p class="muted">Locked pages are hidden from everyone except you.</p>
         <div id="lockList" class="lock-list"></div>

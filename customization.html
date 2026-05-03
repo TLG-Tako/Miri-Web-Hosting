@@ -41,10 +41,11 @@ document.documentElement.dataset.theme = theme;
 
 body{
 margin:0;
-padding:24px 14px 40px;
+padding:24px 18px 40px 292px;
 font-family:"Segoe UI",Tahoma,sans-serif;
 background:radial-gradient(circle at 0% 0%,#fff 0%,var(--bg) 46%,#e4ebff 100%);
 color:var(--text);
+min-width:320px;
 }
 
 :root[data-theme="dark"] body{
@@ -58,25 +59,97 @@ margin:0 auto;
 
 .top-nav{
 display:flex;
-justify-content:space-between;
-align-items:center;
-gap:8px;
-margin-bottom:16px;
+position:fixed;
+top:0;
+left:0;
+bottom:0;
+width:260px;
+justify-content:flex-start;
+align-items:stretch;
+flex-direction:column;
+gap:14px;
+margin-bottom:0;
+padding:18px 0;
+background:#333c47;
+border-right:1px solid rgba(255,255,255,0.08);
+box-shadow:12px 0 32px rgba(18,28,52,0.12);
+z-index:10;
 }
 
 .nav-links{
 display:flex;
-gap:8px;
+flex-direction:column;
+gap:0;
 }
 
 .top-nav a{
 text-decoration:none;
-background:#232f57;
+background:transparent;
+color:#eef3fb;
+padding:14px 22px 14px 54px;
+border-radius:0;
+border-left:4px solid transparent;
+font-size:16px;
+font-weight:700;
+display:flex;
+align-items:center;
+min-height:48px;
+}
+
+.top-nav a:hover,
+.top-nav a[aria-current="page"]{
+background:#2d3540;
+border-left-color:#1eb6ff;
 color:#fff;
-padding:9px 12px;
-border-radius:8px;
-font-size:13px;
-font-weight:600;
+}
+
+.nav-group{
+border-bottom:1px solid rgba(255,255,255,0.03);
+}
+
+.nav-group summary{
+display:flex;
+align-items:center;
+gap:10px;
+min-height:52px;
+padding:0 22px;
+color:#f7f9fd;
+font-size:15px;
+font-weight:800;
+text-transform:uppercase;
+cursor:pointer;
+list-style:none;
+}
+
+.nav-group summary::-webkit-details-marker,
+.collapsible-card summary::-webkit-details-marker{
+display:none;
+}
+
+.nav-group summary::before,
+.collapsible-card summary::before{
+content:"›";
+display:inline-grid;
+place-items:center;
+width:18px;
+height:18px;
+font-size:28px;
+line-height:1;
+transform:rotate(0deg);
+transition:transform .16s ease;
+}
+
+.nav-group[open] summary::before,
+.collapsible-card[open] summary::before{
+transform:rotate(90deg);
+}
+
+.nav-group-links{
+display:grid;
+}
+
+.creator-nav{
+display:none;
 }
 
 h1{margin:0 0 4px;}
@@ -105,7 +178,8 @@ font-size:14px;
 }
 
 #loginBtn{background:var(--success);color:#fff;padding:10px 14px;}
-#logoutBtn{background:var(--danger);color:#fff;padding:8px 12px;}
+#inviteBtn{background:#5865f2;color:#fff;padding:10px 14px;}
+#logoutBtn{display:none;background:var(--danger);color:#fff;padding:8px 12px;}
 #saveBtn{background:var(--primary);color:#fff;padding:11px 18px;}
 #saveBtn:hover{background:var(--primary-dark);}
 
@@ -179,20 +253,160 @@ border-radius:8px;
 font-size:14px;
 font-weight:700;
 }
+
+.auth-actions{
+position:fixed;
+top:14px;
+right:18px;
+display:flex;
+align-items:center;
+gap:8px;
+z-index:11;
+}
+
+.collapsible-card summary{
+display:flex;
+align-items:center;
+gap:10px;
+cursor:pointer;
+list-style:none;
+}
+
+.collapsible-card summary h3{
+margin:0;
+}
+
+.collapsible-content{
+margin-top:12px;
+}
+
+@media (max-width:720px){
+body{
+padding:14px 10px 32px;
+background:linear-gradient(180deg,var(--surface-alt) 0%,var(--bg) 100%);
+}
+
+.top-nav,
+.auth-actions{
+position:static;
+}
+
+.top-nav{
+width:auto;
+padding:0;
+background:transparent;
+border-right:none;
+box-shadow:none;
+gap:10px;
+margin-bottom:12px;
+}
+
+.nav-links{
+gap:8px;
+}
+
+.nav-group{
+overflow:hidden;
+border:1px solid var(--border);
+border-radius:12px;
+background:#333c47;
+}
+
+.nav-group summary{
+min-height:44px;
+padding:0 12px;
+font-size:13px;
+}
+
+.nav-group-links{
+display:grid;
+grid-template-columns:repeat(2,minmax(0,1fr));
+gap:1px;
+padding:0 8px 8px;
+}
+
+.top-nav a{
+justify-content:center;
+padding:9px 10px;
+border-left:0;
+border-radius:8px;
+background:#232f57;
+font-size:12px;
+text-align:center;
+}
+
+.auth-actions{
+width:100%;
+align-items:stretch;
+}
+
+#loginBtn,
+#inviteBtn{
+flex:1;
+}
+
+.toolbar{
+align-items:stretch;
+flex-direction:column;
+}
+
+.toolbar select{
+min-width:0;
+max-width:none;
+}
+}
+
+@media (max-width:420px){
+.nav-group-links{
+grid-template-columns:1fr;
+}
+
+.auth-actions{
+flex-direction:column;
+}
+
+#loginBtn,
+#inviteBtn,
+#logoutBtn,
+#saveBtn{
+width:100%;
+}
+}
 </style>
 </head>
 <body>
 <div class="container">
   <div class="top-nav">
     <div class="nav-links">
-      <a href="/">About</a>
-      <a href="/chat.html">Chat</a>
-      <a href="/stats.html">Stats</a>
-      <a href="/settings.html">Settings</a>
-      <a href="/customization-commands.html">Commands</a>
-      <a href="/creator.html">Creator</a>
+      <details class="nav-group" open>
+        <summary><span>Pages</span></summary>
+        <div class="nav-group-links">
+          <a href="/">About</a>
+          <a href="/chat.html">Chat</a>
+          <a href="/stats.html">Stats</a>
+          <a href="/settings.html">Settings</a>
+        </div>
+      </details>
+      <details class="nav-group" open>
+        <summary><span>Server</span></summary>
+        <div class="nav-group-links">
+          <a href="/customization.html" aria-current="page">Customization</a>
+          <a href="/customization-commands.html">Command Toggles</a>
+        </div>
+      </details>
+      <details class="nav-group creator-nav">
+        <summary><span>Creator</span></summary>
+        <div class="nav-group-links">
+          <a href="/creator.html">Creator</a>
+        </div>
+      </details>
     </div>
+  </div>
+
+  <div class="auth-actions">
     <button id="loginBtn">Login with Discord</button>
+    <button id="inviteBtn" type="button">Invite</button>
+    <button id="logoutBtn">Logout</button>
   </div>
 
   <h1>Miri Server Customization</h1>
@@ -201,8 +415,6 @@ font-weight:700;
   <div id="identityPanel" class="card">
     <img id="userAvatar" alt="Discord avatar">
     <div id="userName"></div>
-    <div class="spacer"></div>
-    <button id="logoutBtn">Logout</button>
   </div>
 
   <div class="card">
@@ -220,8 +432,9 @@ font-weight:700;
     <div id="saveResult" class="helper" style="margin-top:8px;"></div>
   </div>
 
-  <div class="card">
-    <h3>Channels</h3>
+  <details class="card collapsible-card" open>
+    <summary><h3>Channels</h3></summary>
+    <div class="collapsible-content">
     <div class="grid">
       <div class="field"><label>Mod Channel</label><select data-channel-field="modChannel"></select></div>
       <div class="field"><label>Admin Channel</label><select data-channel-field="adminChannel"></select></div>
@@ -235,10 +448,12 @@ font-weight:700;
       <div class="field"><label>Auto Purge Channels</label><select data-channel-array-field="autoPurgeChannels" multiple></select><div class="helper">Hold Ctrl / Cmd to select multiple channels.</div></div>
       <div class="field"><label>Currency Channels</label><select data-channel-array-field="currencyChannels" multiple></select><div class="helper">Hold Ctrl / Cmd to select multiple channels.</div></div>
     </div>
-  </div>
+    </div>
+  </details>
 
-  <div class="card">
-    <h3>Roles</h3>
+  <details class="card collapsible-card">
+    <summary><h3>Roles</h3></summary>
+    <div class="collapsible-content">
     <div class="grid">
       <div class="field"><label>Staff Role</label><select data-role-field="staffRole"></select></div>
       <div class="field"><label>Admin Role</label><select data-role-field="adminRole"></select></div>
@@ -250,19 +465,23 @@ font-weight:700;
       <div class="field"><label>Reward Role</label><select data-role-field="rewardRole"></select></div>
       <div class="field"><label>Music Role</label><select data-role-field="musicRole"></select></div>
     </div>
-  </div>
+    </div>
+  </details>
 
-  <div class="card">
-    <h3>Economy & Misc</h3>
+  <details class="card collapsible-card">
+    <summary><h3>Economy & Misc</h3></summary>
+    <div class="collapsible-content">
     <div class="grid">
       <div class="field"><label>Currency Name</label><input data-field="currencyName"></div>
       <div class="field"><label>Currency Emoji</label><input data-field="currencyEmoji"></div>
       <div class="field"><label>Music Duration (seconds)</label><input data-number-field="musicDuration" type="number" min="0"></div>
     </div>
-  </div>
+    </div>
+  </details>
 
-  <div class="card">
-    <h3>Welcome & Goodbye Messages</h3>
+  <details class="card collapsible-card">
+    <summary><h3>Welcome & Goodbye Messages</h3></summary>
+    <div class="collapsible-content">
     <div class="helper">Placeholders: welcome supports {member} and {memberModifier}; goodbye supports {member}, {user}, and {memberCount}.</div>
     <div class="grid" style="margin-top:12px;">
       <div class="field">
@@ -291,7 +510,8 @@ font-weight:700;
         <input data-goodbye-field="footerText" maxlength="256">
       </div>
     </div>
-  </div>
+    </div>
+  </details>
 </div>
 
 <script src="customization.js"></script>

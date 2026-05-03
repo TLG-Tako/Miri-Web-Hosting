@@ -16,6 +16,7 @@ const benefitsInput = document.getElementById("benefitsInput");
 const photoUploadInput = document.getElementById("photoUploadInput");
 const purchaseUrlInput = document.getElementById("purchaseUrlInput");
 const photoList = document.getElementById("photoList");
+const creatorGuildList = document.getElementById("creatorGuildList");
 const lockList = document.getElementById("lockList");
 const saveCreatorBtn = document.getElementById("saveCreatorBtn");
 const saveResult = document.getElementById("saveResult");
@@ -36,6 +37,7 @@ async function bootCreator(){
   saveCreatorBtn.addEventListener("click", saveCreatorConfig);
 
   await loadCreatorConfig();
+  await loadCreatorGuilds();
 }
 
 async function loadCreatorConfig(){
@@ -236,4 +238,122 @@ function getLines(value){
     .split("\n")
     .map(line => line.trim())
     .filter(Boolean);
+}
+
+async function loadCreatorGuilds(){
+  if(!creatorGuildList) return;
+  creatorGuildList.innerHTML = "<p class='muted'>Loading servers...</p>";
+
+  try{
+    const data = await apiFetch("/dashboard/guilds");
+    renderCreatorGuilds(data.guilds || []);
+  }catch(err){
+    creatorGuildList.innerHTML = `<p class='muted'>${err.message || "Failed to load guilds."}</p>`;
+  }
+}
+
+function renderCreatorGuilds(guilds){
+  if(!creatorGuildList) return;
+  creatorGuildList.innerHTML = "";
+
+  if(!Array.isArray(guilds) || !guilds.length){
+    creatorGuildList.innerHTML = "<p class='muted'>No servers found where Miri is present and you have manage permissions.</p>";
+    return;
+  }
+
+  guilds.forEach(guild => {
+    const item = document.createElement("div");
+    item.className = "guild-item";
+
+    const header = document.createElement("div");
+    header.className = "guild-header";
+
+    const title = document.createElement("div");
+    title.className = "guild-name";
+    title.textContent = guild.name;
+
+    const status = document.createElement("span");
+    status.className = `status-pill ${guild.premiumEnabled ? "active" : "inactive"}`;
+    status.textContent = guild.premiumEnabled ? "Premium active" : "No premium";
+
+    header.appendChild(title);
+    header.appendChild(status);
+
+    if (guild.hasOutstandingPayments) {
+      const paymentStatus = document.createElement("span");
+      paymentStatus.className = "status-pill danger";
+      paymentStatus.textContent = "Outstanding payment";
+      header.appendChild(paymentStatus);
+    }
+
+    const meta = document.createElement("div");
+    meta.className = "guild-meta";
+    meta.innerHTML = `
+      <span>Guild ID: ${guild.id}</span>
+      <span>Premium owner: ${guild.premiumOwnerUserId || "none"}</span>
+    `;
+
+    const usage = document.createElement("div");
+    usage.className = "guild-usage";
+    usage.textContent = `Daily tokens: ${guild.dailyTokenUsage}, Total: ${guild.totalTokenUsage}, Est. cost: $${guild.estimatedCost}`;
+
+    const actionRow = document.createElement("div");
+    actionRow.className = "guild-actions";
+
+    const settingsLink = document.createElement("a");
+    settingsLink.className = "button-link";
+    settingsLink.href = "/settings.html";
+    settingsLink.target = "_blank";
+    settingsLink.rel = "noopener";
+    settingsLink.textContent = "Open Settings";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.className = "danger-btn";
+    removeBtn.textContent = "Remove Bot";
+    removeBtn.addEventListener("click", () => leaveGuild(guild.id));
+
+    actionRow.appendChild(settingsLink);
+    actionRow.appendChild(removeBtn);
+
+    if(guild.premiumEnabled){
+      const deactivateBtn = document.createElement("button");
+      deactivateBtn.type = "button";
+      deactivateBtn.className = "danger-btn";
+      deactivateBtn.textContent = "Deactivate Premium";
+      deactivateBtn.addEventListener("click", () => deactivatePremium(guild.id));
+      actionRow.appendChild(deactivateBtn);
+    }
+
+    item.appendChild(header);
+    item.appendChild(meta);
+    item.appendChild(usage);
+    item.appendChild(actionRow);
+    creatorGuildList.appendChild(item);
+  });
+}
+
+async function leaveGuild(guildId){
+  if(!confirm("Remove Miri from this server? This cannot be undone from the creator panel.")) return;
+
+  try{
+    await apiFetch(`/dashboard/guilds/${guildId}`, { method: "DELETE" });
+    await loadCreatorGuilds();
+  }catch(err){
+    alert(err.message || "Failed to remove Miri from the server.");
+  }
+}
+
+async function deactivatePremium(guildId){
+  if(!confirm("Deactivate premium for this server?")) return;
+
+  try{
+    await apiFetch(`/dashboard/server-vars/${guildId}/premium`, {
+      method: "POST",
+      body: JSON.stringify({ action: "deactivate" })
+    });
+    await loadCreatorGuilds();
+  }catch(err){
+    alert(err.message || "Failed to deactivate premium.");
+  }
 }

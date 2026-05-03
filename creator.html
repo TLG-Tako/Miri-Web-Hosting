@@ -56,6 +56,60 @@ padding:10px;
 .lock-row input{
 width:auto;
 }
+.guild-list{
+display:grid;
+gap:10px;
+margin-top:12px;
+}
+.guild-item{
+display:grid;
+gap:10px;
+background:var(--surface-alt);
+border:1px solid var(--border);
+border-radius:12px;
+padding:12px;
+}
+.guild-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+gap:10px;
+flex-wrap:wrap;
+}
+.guild-name{
+font-size:1rem;
+font-weight:700;
+}
+.guild-meta{
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+font-size:.95rem;
+color:var(--muted);
+}
+.status-pill{
+padding:4px 10px;
+border-radius:999px;
+font-size:.85rem;
+font-weight:700;
+}
+.status-pill.active{
+background:var(--success);
+color:#fff;
+}
+.status-pill.danger{
+background:var(--danger);
+color:#fff;
+}
+.guild-actions{
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+.guild-usage{
+font-size:.95rem;
+color:var(--muted);
+}
 #saveResult{
 font-weight:700;
 margin-top:10px;
@@ -139,6 +193,12 @@ margin-top:10px;
           <input id="purchaseUrlInput" type="url" placeholder="https://...">
           <p class="muted">The Settings page uses this link for Premium checkout and reads the displayed price from it when possible.</p>
         </div>
+
+        <section class="card guild-panel" style="margin-top:16px;">
+          <h2>Bot Servers</h2>
+          <p class="muted">View bot servers, premium state, and remove Miri from servers you no longer manage.</p>
+          <div id="creatorGuildList" class="guild-list"></div>
+        </section>
 
         <hr>
 

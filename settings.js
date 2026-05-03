@@ -45,6 +45,7 @@ function renderBilling(billing){
     billingPrice.textContent = "Premium";
     billingNote.textContent = "A purchase link has not been added yet.";
     purchasePremiumLink.style.display = "none";
+    applyPremiumQueryHint();
     return;
   }
 
@@ -56,6 +57,20 @@ function renderBilling(billing){
     : "Open checkout to view the current subscription price.";
   purchasePremiumLink.href = purchaseUrl;
   purchasePremiumLink.style.display = "inline-flex";
+  applyPremiumQueryHint();
+}
+
+function applyPremiumQueryHint(){
+  const params = new URLSearchParams(window.location.search);
+  const action = params.get("premium");
+
+  if(!action) return;
+
+  if(action === "active"){
+    billingNote.textContent = "Open the purchase page to activate premium for a server.";
+  } else if(action === "deactive"){
+    billingNote.textContent = "Use the dashboard to deactivate premium for your server.";
+  }
 }
 
 function readPriceFromPurchaseLink(purchaseUrl){

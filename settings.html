@@ -125,11 +125,13 @@ color:var(--muted);
             <li>📊 Usage is tracked in real-time with transparent billing</li>
             <li>🔒 More complex requests (long prompts, images, deep reasoning) use slightly more</li>
         </ul>
-        <stripe-pricing-table pricing-table-id="prctbl_1TT1JYEByNmzs7fuZquUbPx1"
-        publishable-key="pk_live_51TSzc9EByNmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKm4RAgmcrnE1SUej8Kq4OVhLLoZnZKrdLjRHylV00aDFOTSSP">
-        </stripe-pricing-table>
+        <div id="pricingTableWrapper"></div>
+        <div id="pricingLoginPrompt" class="card" style="display:none; padding:16px;">
+          <p class="muted">Login to subscribe and tie your premium plan to your account.</p>
+          <button id="pricingLoginBtn" type="button" class="button-link">Login to subscribe</button>
+        </div>
         <div class="button-row">
-          <a id="manageSubscriptionLink" class="button-link" href="https://billing.stripe.com/p/login/4gMdR91midqbgc80Vlbsc00" target="_blank" rel="noopener">Manage Subscription</a>
+          <a id="manageSubscriptionLink" class="button-link" href="https://billing.stripe.com/p/login/4gMdR91midqbgc80Vlbsc00" target="_blank" rel="noopener" style="display:none;">Manage Subscription</a>
         </div>
       </section>
     </div>

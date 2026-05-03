@@ -13,7 +13,7 @@ async function bootSettings(){
   renderPricingSection(shell.user);
 }
 
-function renderPricingSection(user){
+async function renderPricingSection(user){
   if(!pricingTableWrapper || !pricingLoginPrompt || !manageSubscriptionLink) return;
 
   const hasUser = Boolean(user && user.id);
@@ -28,9 +28,26 @@ function renderPricingSection(user){
     return;
   }
 
+  // Check subscription status
+  try {
+    const response = await apiFetch("/auth/subscription-status");
+    const { hasActiveSubscription } = response;
+
+    if(hasActiveSubscription){
+      // Hide pricing table, show manage link
+      pricingTableWrapper.style.display = "none";
+      manageSubscriptionLink.style.display = "inline-flex";
+      return;
+    }
+  } catch (err) {
+    console.error("Failed to check subscription status:", err);
+    // Fall back to showing pricing table
+  }
+
+  // Show pricing table for non-subscribers
   const table = document.createElement("stripe-pricing-table");
   table.setAttribute("pricing-table-id", "prctbl_1TT1JYEByNmzs7fuZquUbPx1");
-  table.setAttribute("publishable-key", "pk_live_51TSzc9EByNmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKm4RAgmcrnE1SUej8Kq4OVhLLoZnZKrdLjRHylV00aDFOTSSP");
+  table.setAttribute("publishable-key", "pk_live_51TSzc9EByNmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKm4RAgmcrnE1SUej8Kq4OVhLLoZnZKrdLjRHylV00aDFOTSSP");
   table.setAttribute("client-reference-id", String(user.id));
 
   if(user.email){
@@ -38,6 +55,7 @@ function renderPricingSection(user){
   }
 
   pricingTableWrapper.appendChild(table);
+  pricingTableWrapper.style.display = "block";
 }
 
 function setTheme(theme){

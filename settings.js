@@ -50,7 +50,7 @@ async function renderPricingSection(user){
   // Show pricing table for non-subscribers
   const table = document.createElement("stripe-pricing-table");
   table.setAttribute("pricing-table-id", "prctbl_1TT1JYEByNmzs7fuZquUbPx1");
-  table.setAttribute("publishable-key", "pk_live_51TSzc9EByNmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKmzs7fut3ScHu6pS8StB4JGvSQQedFM6fJqVfiIXKm4RAgmcrnE1SUej8Kq4OVhLLoZnZKrdLjRHylV00aDFOTSSP");
+  table.setAttribute("publishable-key", "pk_live_51TSzc9EByNmzs7fuR6ngVo8Ykogi5ZiDsXNHJXf8zM0zAkNBjoLaSuTwyzjrS5l7soSzrAeL7YccuuCrtSRxEDEB00GmC3VU7A");
   table.setAttribute("client-reference-id", String(user.id));
 
   if(user.email){

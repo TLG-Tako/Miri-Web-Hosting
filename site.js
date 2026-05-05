@@ -101,7 +101,7 @@ function ensureInviteButton(identityRow){
   }
 }
 
-function enhanceNavigation(isCreator = false){
+function enhanceNavigation(isCreator = false, isLoggedIn = false){
   const nav = document.querySelector(".top-nav");
   const navLinks = nav?.querySelector(".nav-links");
   if(!nav || !navLinks || navLinks.dataset.enhanced === "true") return;
@@ -122,13 +122,13 @@ function enhanceNavigation(isCreator = false){
   navLinks.dataset.enhanced = "true";
   navLinks.innerHTML = `
     <details class="nav-group" open>
-      <summary><span>Pages</span></summary>
+      <summary><span>Miri</span></summary>
       <div class="nav-group-links">
         ${makeLink("/", "About")}
         ${makeLink("/chat.html", "Chat")}
+        ${isLoggedIn ? makeLink("/games.html", "Games") : ""}
         ${makeLink("/stats.html", "Stats", "data-creator-only")}
       </div>
-    </details>
     <details class="nav-group" open>
       <summary><span>Server</span></summary>
       <div class="nav-group-links">
@@ -187,7 +187,7 @@ async function hydrateShell(options = {}){
   creatorLinks.forEach(link => {
     link.style.display = isCreator ? "inline-flex" : "none";
   });
-  enhanceNavigation(isCreator);
+  enhanceNavigation(isCreator, Boolean(user));
   document.querySelectorAll("[data-creator-only]").forEach(link => {
     link.style.display = isCreator ? "inline-flex" : "none";
   });

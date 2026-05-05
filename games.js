@@ -53,7 +53,8 @@ async function loadBalance() {
 
     if (response.ok) {
       const data = await response.json();
-      updateBalanceDisplay(data.primary_balance, data.secondary_balance);
+      updateGamblingBalance(data.primary_balance);
+      updateQuestBalance(data.secondary_balance);
       updateSpinButton();
     }
   } catch (err) {
@@ -61,15 +62,18 @@ async function loadBalance() {
   }
 }
 
-function updateBalanceDisplay(balance, secondaryBalance = null) {
-  document.getElementById('balance').textContent = balance;
-  document.getElementById('bjBalance').textContent = balance;
-  document.getElementById('pokerBalance').textContent = balance;
-  if (secondaryBalance !== null) {
-    const secondaryEl = document.getElementById('secondaryBalance');
-    if (secondaryEl) {
-      secondaryEl.textContent = secondaryBalance;
-    }
+function updateGamblingBalance(balance) {
+  const primary = typeof balance === 'number' ? balance : Number(balance || 0);
+  document.getElementById('balance').textContent = primary;
+  document.getElementById('bjBalance').textContent = primary;
+  document.getElementById('pokerBalance').textContent = primary;
+}
+
+function updateQuestBalance(secondaryBalance) {
+  const secondary = typeof secondaryBalance === 'number' ? secondaryBalance : Number(secondaryBalance || 0);
+  const secondaryEl = document.getElementById('secondaryBalance');
+  if (secondaryEl) {
+    secondaryEl.textContent = secondary;
   }
 }
 
@@ -145,8 +149,8 @@ async function playSlots() {
       resultDiv.className = 'game-result ' + (data.net > 0 ? 'win' : data.net < 0 ? 'loss' : 'tie');
       resultDiv.style.display = 'block';
 
-      // Update balance
-      updateBalanceDisplay(data.newBalance);
+      // Update primary gambling balance
+      updateGamblingBalance(data.newBalance);
       updateSpinButton();
     } else {
       alert(data.error || 'Failed to play slots');
@@ -211,7 +215,7 @@ async function startBlackjack() {
 
     if (response.ok) {
       displayBlackjackState(data);
-      updateBalanceDisplay(data.newBalance);
+      updateGamblingBalance(data.newBalance);
 
       blackjackInProgress = !data.gameOver;
       hitBtn.disabled = !blackjackInProgress;
@@ -257,7 +261,7 @@ async function handleBlackjackAction(action) {
 
     if (response.ok) {
       displayBlackjackState(data);
-      updateBalanceDisplay(data.newBalance);
+      updateGamblingBalance(data.newBalance);
 
       blackjackInProgress = !data.gameOver;
       hitBtn.disabled = !blackjackInProgress;
@@ -330,8 +334,8 @@ async function playPoker() {
       resultDiv.className = 'game-result ' + (data.payout > data.bet ? 'win' : data.payout === data.bet ? 'tie' : 'loss');
       resultDiv.style.display = 'block';
 
-      // Update balance
-      updateBalanceDisplay(data.newBalance);
+      // Update primary gambling balance
+      updateGamblingBalance(data.newBalance);
     } else {
       alert(data.error || 'Failed to play poker');
     }

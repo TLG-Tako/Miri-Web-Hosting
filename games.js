@@ -1,5 +1,3 @@
-const API_BASE = "https://miri-production.up.railway.app";
-
 let currentUser = null;
 let selectedGuild = null;
 let selectedBet = 5;
@@ -40,27 +38,6 @@ async function init() {
 
   // Setup event listeners
   setupEventListeners();
-}
-
-async function getCurrentUser() {
-  try {
-    const token = localStorage.getItem("miri_token");
-    if (!token) return null;
-
-    const response = await fetch(`${API_BASE}/auth/me`, {
-      headers: {
-        'Authorization': token
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      return data.user;
-    }
-  } catch (err) {
-    console.error("Failed to get current user:", err);
-  }
-  return null;
 }
 
 async function loadBalance() {

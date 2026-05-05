@@ -16,14 +16,7 @@ async function init() {
   guildSelect.innerHTML = '<option value="">Select a server...</option>';
 
   try {
-    const token = localStorage.getItem("miri_token");
-    const response = await fetch(`${API_BASE}/gambling/guilds`, {
-      headers: {
-        'Authorization': token
-      }
-    });
-
-    const data = await response.json();
+    const data = await apiFetch('/gambling/guilds');
     const guilds = Array.isArray(data.guilds) ? data.guilds : [];
 
     if (guilds.length === 0) {
@@ -47,7 +40,7 @@ async function init() {
     await loadBalance();
   } catch (err) {
     console.error("Failed to load guilds:", err);
-    showNoGuilds();
+    showGuildLoadError(err?.message);
   }
 
   // Setup event listeners
@@ -58,19 +51,10 @@ async function loadBalance() {
   if (!selectedGuild) return;
 
   try {
-    const token = localStorage.getItem("miri_token");
-    const response = await fetch(`${API_BASE}/gambling/balance/${selectedGuild}`, {
-      headers: {
-        'Authorization': token
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      updateGamblingBalance(data.primary_balance);
-      updateQuestBalance(data.secondary_balance);
-      updateSpinButton();
-    }
+    const data = await apiFetch(`/gambling/balance/${selectedGuild}`);
+    updateGamblingBalance(data.primary_balance);
+    updateQuestBalance(data.secondary_balance);
+    updateSpinButton();
   } catch (err) {
     console.error("Failed to load balance:", err);
   }
@@ -141,37 +125,26 @@ async function playSlots() {
   spinBtn.textContent = 'Spinning...';
 
   try {
-    const token = localStorage.getItem("miri_token");
-    const response = await fetch(`${API_BASE}/gambling/slots/${selectedGuild}`, {
+    const data = await apiFetch(`/gambling/slots/${selectedGuild}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
-      },
       body: JSON.stringify({ bet: selectedBet })
     });
 
-    const data = await response.json();
+    // Animate the slots
+    await animateSlots(data.grid);
 
-    if (response.ok) {
-      // Animate the slots
-      await animateSlots(data.grid);
+    // Show result
+    const resultDiv = document.getElementById('slotsResult');
+    resultDiv.textContent = data.result;
+    resultDiv.className = 'game-result ' + (data.net > 0 ? 'win' : data.net < 0 ? 'loss' : 'tie');
+    resultDiv.style.display = 'block';
 
-      // Show result
-      const resultDiv = document.getElementById('slotsResult');
-      resultDiv.textContent = data.result;
-      resultDiv.className = 'game-result ' + (data.net > 0 ? 'win' : data.net < 0 ? 'loss' : 'tie');
-      resultDiv.style.display = 'block';
-
-      // Update primary gambling balance
-      updateGamblingBalance(data.newBalance);
-      updateSpinButton();
-    } else {
-      alert(data.error || 'Failed to play slots');
-    }
+    // Update primary gambling balance
+    updateGamblingBalance(data.newBalance);
+    updateSpinButton();
   } catch (err) {
     console.error('Slots error:', err);
-    alert('Failed to play slots');
+    alert(err?.message || 'Failed to play slots');
   } finally {
     spinBtn.disabled = false;
     spinBtn.textContent = 'Spin!';
@@ -215,34 +188,23 @@ async function startBlackjack() {
   resultDiv.style.display = 'none';
 
   try {
-    const token = localStorage.getItem("miri_token");
-    const response = await fetch(`${API_BASE}/gambling/blackjack/${selectedGuild}/start`, {
+    const data = await apiFetch(`/gambling/blackjack/${selectedGuild}/start`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
-      },
       body: JSON.stringify({ bet: selectedBet })
     });
 
-    const data = await response.json();
+    displayBlackjackState(data);
+    updateGamblingBalance(data.newBalance);
 
-    if (response.ok) {
-      displayBlackjackState(data);
-      updateGamblingBalance(data.newBalance);
-
-      blackjackInProgress = !data.gameOver;
-      hitBtn.disabled = !blackjackInProgress;
-      standBtn.disabled = !blackjackInProgress;
-      dealBtn.disabled = blackjackInProgress;
-      dealBtn.textContent = blackjackInProgress ? 'Game in progress' : 'Deal!';
-      document.getElementById('bjActions').style.display = blackjackInProgress ? 'flex' : 'none';
-    } else {
-      alert(data.error || 'Failed to start blackjack');
-    }
+    blackjackInProgress = !data.gameOver;
+    hitBtn.disabled = !blackjackInProgress;
+    standBtn.disabled = !blackjackInProgress;
+    dealBtn.disabled = blackjackInProgress;
+    dealBtn.textContent = blackjackInProgress ? 'Game in progress' : 'Deal!';
+    document.getElementById('bjActions').style.display = blackjackInProgress ? 'flex' : 'none';
   } catch (err) {
     console.error('Blackjack error:', err);
-    alert('Failed to start blackjack');
+    alert(err?.message || 'Failed to start blackjack');
   } finally {
     if (!blackjackInProgress) {
       dealBtn.disabled = false;
@@ -261,41 +223,27 @@ async function handleBlackjackAction(action) {
   standBtn.disabled = true;
 
   try {
-    const token = localStorage.getItem("miri_token");
-    const response = await fetch(`${API_BASE}/gambling/blackjack/${selectedGuild}/action`, {
+    const data = await apiFetch(`/gambling/blackjack/${selectedGuild}/action`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
-      },
       body: JSON.stringify({ action })
     });
 
-    const data = await response.json();
+    displayBlackjackState(data);
+    updateGamblingBalance(data.newBalance);
 
-    if (response.ok) {
-      displayBlackjackState(data);
-      updateGamblingBalance(data.newBalance);
-
-      blackjackInProgress = !data.gameOver;
-      hitBtn.disabled = !blackjackInProgress;
-      standBtn.disabled = !blackjackInProgress;
-      dealBtn.disabled = blackjackInProgress;
-      dealBtn.textContent = blackjackInProgress ? 'Game in progress' : 'Deal!';
-      document.getElementById('bjActions').style.display = blackjackInProgress ? 'flex' : 'none';
-    } else {
-      alert(data.error || 'Failed to update blackjack');
-      blackjackInProgress = false;
-      dealBtn.disabled = false;
-      dealBtn.textContent = 'Deal!';
-      document.getElementById('bjActions').style.display = 'none';
-    }
+    blackjackInProgress = !data.gameOver;
+    hitBtn.disabled = !blackjackInProgress;
+    standBtn.disabled = !blackjackInProgress;
+    dealBtn.disabled = blackjackInProgress;
+    dealBtn.textContent = blackjackInProgress ? 'Game in progress' : 'Deal!';
+    document.getElementById('bjActions').style.display = blackjackInProgress ? 'flex' : 'none';
   } catch (err) {
     console.error('Blackjack action error:', err);
-    alert('Failed to update blackjack');
+    alert(err?.message || 'Failed to update blackjack');
     blackjackInProgress = false;
     dealBtn.disabled = false;
     dealBtn.textContent = 'Deal!';
+    document.getElementById('bjActions').style.display = 'none';
   }
 }
 
@@ -326,36 +274,25 @@ async function playPoker() {
   playBtn.textContent = 'Playing...';
 
   try {
-    const token = localStorage.getItem("miri_token");
-    const response = await fetch(`${API_BASE}/gambling/poker/${selectedGuild}`, {
+    const data = await apiFetch(`/gambling/poker/${selectedGuild}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token
-      },
       body: JSON.stringify({ bet: selectedBet })
     });
 
-    const data = await response.json();
+    // Display cards
+    displayPokerCards(data);
 
-    if (response.ok) {
-      // Display cards
-      displayPokerCards(data);
+    // Show result
+    const resultDiv = document.getElementById('pokerResult');
+    resultDiv.textContent = data.result;
+    resultDiv.className = 'game-result ' + (data.payout > data.bet ? 'win' : data.payout === data.bet ? 'tie' : 'loss');
+    resultDiv.style.display = 'block';
 
-      // Show result
-      const resultDiv = document.getElementById('pokerResult');
-      resultDiv.textContent = data.result;
-      resultDiv.className = 'game-result ' + (data.payout > data.bet ? 'win' : data.payout === data.bet ? 'tie' : 'loss');
-      resultDiv.style.display = 'block';
-
-      // Update primary gambling balance
-      updateGamblingBalance(data.newBalance);
-    } else {
-      alert(data.error || 'Failed to play poker');
-    }
+    // Update primary gambling balance
+    updateGamblingBalance(data.newBalance);
   } catch (err) {
     console.error('Poker error:', err);
-    alert('Failed to play poker');
+    alert(err?.message || 'Failed to play poker');
   } finally {
     playBtn.disabled = false;
     playBtn.textContent = 'Play Poker!';
@@ -388,6 +325,16 @@ function showNoGuilds() {
     <h1>Games</h1>
     <p>You must be a member of a server with Miri to play games.</p>
   `;
+}
+
+function showGuildLoadError(message) {
+  const normalized = String(message || '');
+  if (normalized.includes('Not logged in') || normalized.includes('401')) {
+    showLoginRequired();
+    return;
+  }
+
+  showNoGuilds();
 }
 
 // Initialize when DOM is loaded

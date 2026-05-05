@@ -10,15 +10,22 @@ const imageModal = document.getElementById("imageModal");
 const modalImage = document.getElementById("modalImage");
 const closeImageModal = document.getElementById("closeImageModal");
 
-hydrateShell();
-loadAboutPage();
-closeImageModal.addEventListener("click", closeImageViewer);
-imageModal.addEventListener("click", event => {
-  if(event.target === imageModal) closeImageViewer();
-});
-document.addEventListener("keydown", event => {
-  if(event.key === "Escape") closeImageViewer();
-});
+bootAboutPage();
+
+async function bootAboutPage(){
+  await hydrateShell();
+  const allowed = await requirePageAccess("about");
+  if(!allowed) return;
+
+  await loadAboutPage();
+  closeImageModal.addEventListener("click", closeImageViewer);
+  imageModal.addEventListener("click", event => {
+    if(event.target === imageModal) closeImageViewer();
+  });
+  document.addEventListener("keydown", event => {
+    if(event.key === "Escape") closeImageViewer();
+  });
+}
 
 async function loadAboutPage(){
   try{

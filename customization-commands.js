@@ -13,7 +13,7 @@ bootCommandCustomization();
 async function bootCommandCustomization(){
   await hydrateShell();
 
-  const allowed = await requirePageAccess("customization");
+  const allowed = await requirePageAccess("customizationCommands");
   if(!allowed) return;
 
   guildSelect.addEventListener("change", handleGuildChange);

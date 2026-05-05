@@ -1,7 +1,10 @@
 const PAGE_LABELS = {
+  about: "About",
   chat: "Chat",
+  games: "Games",
   stats: "Stats",
   customization: "Customization",
+  customizationCommands: "Command Toggles",
   settings: "Settings",
   creator: "Creator Panel"
 };

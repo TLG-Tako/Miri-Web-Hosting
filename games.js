@@ -5,6 +5,9 @@ let selectedBet = 5;
 // Initialize the page
 async function init() {
   const shell = await hydrateShell();
+  const allowed = await requirePageAccess('games');
+  if (!allowed) return;
+
   currentUser = shell.user;
 
   if (!currentUser) {

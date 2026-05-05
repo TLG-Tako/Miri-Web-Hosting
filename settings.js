@@ -11,7 +11,8 @@ bootSettings();
 
 async function bootSettings(){
   const shell = await hydrateShell();
-  await requirePageAccess("settings");
+  const allowed = await requirePageAccess("settings");
+  if(!allowed) return;
   await renderPricingSection(shell.user);
   await renderPremiumServers(shell.user);
 }

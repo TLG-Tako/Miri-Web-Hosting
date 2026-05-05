@@ -12,29 +12,43 @@ async function init() {
     return;
   }
 
-  // Get user's guilds
-  const guilds = currentUser.guilds || [];
-  if (guilds.length === 0) {
-    showNoGuilds();
-    return;
-  }
-
   const guildSelect = document.getElementById('guildSelect');
-  guildSelect.innerHTML = '<option value="">Select a server...</option>' +
-    guilds.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+  guildSelect.innerHTML = '<option value="">Select a server...</option>';
 
-  selectedGuild = guilds[0].id;
-  guildSelect.value = selectedGuild;
+  try {
+    const token = localStorage.getItem("miri_token");
+    const response = await fetch(`${API_BASE}/gambling/guilds`, {
+      headers: {
+        'Authorization': token
+      }
+    });
 
-  guildSelect.addEventListener('change', async (e) => {
-    selectedGuild = e.target.value;
-    if (selectedGuild) {
-      await loadBalance();
+    const data = await response.json();
+    const guilds = Array.isArray(data.guilds) ? data.guilds : [];
+
+    if (guilds.length === 0) {
+      showNoGuilds();
+      return;
     }
-  });
 
-  // Load initial balance
-  await loadBalance();
+    guildSelect.innerHTML = '<option value="">Select a server...</option>' +
+      guilds.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+
+    selectedGuild = guilds[0].id;
+    guildSelect.value = selectedGuild;
+
+    guildSelect.addEventListener('change', async (e) => {
+      selectedGuild = e.target.value;
+      if (selectedGuild) {
+        await loadBalance();
+      }
+    });
+
+    await loadBalance();
+  } catch (err) {
+    console.error("Failed to load guilds:", err);
+    showNoGuilds();
+  }
 
   // Setup event listeners
   setupEventListeners();

@@ -173,6 +173,11 @@ padding:40px 20px;
 
       <div class="games-section">
         <div class="games-dropdown">
+          <select id="guildSelect">
+            <option value="">Select a server...</option>
+          </select>
+        </div>
+        <div class="games-dropdown">
           <select id="gameCategory">
             <option value="">Select a category...</option>
             <option value="gambling">Gambling</option>
@@ -279,6 +284,7 @@ padding:40px 20px;
           <div id="questsContent" class="game-container">
             <div class="quests-content">
               <h3>Quests</h3>
+              <div class="balance-display">Secondary Balance: <span id="secondaryBalance">0</span> coins</div>
               <p>Currently in development</p>
             </div>
           </div>

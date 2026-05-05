@@ -21,8 +21,19 @@ async function init() {
     return;
   }
 
-  // For now, use the first guild. In future, could add guild selector
+  const guildSelect = document.getElementById('guildSelect');
+  guildSelect.innerHTML = '<option value="">Select a server...</option>' +
+    guilds.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
+
   selectedGuild = guilds[0].id;
+  guildSelect.value = selectedGuild;
+
+  guildSelect.addEventListener('change', async (e) => {
+    selectedGuild = e.target.value;
+    if (selectedGuild) {
+      await loadBalance();
+    }
+  });
 
   // Load initial balance
   await loadBalance();
@@ -53,6 +64,8 @@ async function getCurrentUser() {
 }
 
 async function loadBalance() {
+  if (!selectedGuild) return;
+
   try {
     const token = localStorage.getItem("miri_token");
     const response = await fetch(`${API_BASE}/gambling/balance/${selectedGuild}`, {
@@ -63,7 +76,7 @@ async function loadBalance() {
 
     if (response.ok) {
       const data = await response.json();
-      updateBalanceDisplay(data.balance);
+      updateBalanceDisplay(data.primary_balance, data.secondary_balance);
       updateSpinButton();
     }
   } catch (err) {
@@ -71,10 +84,16 @@ async function loadBalance() {
   }
 }
 
-function updateBalanceDisplay(balance) {
+function updateBalanceDisplay(balance, secondaryBalance = null) {
   document.getElementById('balance').textContent = balance;
   document.getElementById('bjBalance').textContent = balance;
   document.getElementById('pokerBalance').textContent = balance;
+  if (secondaryBalance !== null) {
+    const secondaryEl = document.getElementById('secondaryBalance');
+    if (secondaryEl) {
+      secondaryEl.textContent = secondaryBalance;
+    }
+  }
 }
 
 function setupEventListeners() {

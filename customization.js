@@ -36,7 +36,7 @@ const ROLE_FIELDS = [
   "musicRole"
 ];
 
-const CHANNEL_ARRAY_FIELDS = ["autoPurgeChannels", "currencyChannels"];
+const CHANNEL_ARRAY_FIELDS = ["autoPurgeChannels", "secondaryCurrencyChannels"];
 
 let currentUser = null;
 let currentGuildId = "";

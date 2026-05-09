@@ -135,15 +135,98 @@ text-align:center;
 margin-bottom:16px;
 }
 .quests-content{
-text-align:center;
-padding:40px 20px;
+padding:12px 0;
 }
 .quests-content h3{margin-bottom:16px;}
 .quests-content p{color:var(--muted);}
+.quest-toolbar{
+display:flex;
+gap:12px;
+align-items:center;
+justify-content:space-between;
+margin-bottom:16px;
+flex-wrap:wrap;
+}
+.quest-tabs{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+.quest-tab{
+padding:8px 12px;
+border:1px solid var(--border);
+border-radius:6px;
+background:var(--surface);
+color:var(--text);
+cursor:pointer;
+}
+.quest-tab.active{background:var(--primary);color:white;}
+.quest-list{
+display:grid;
+gap:10px;
+margin-top:12px;
+}
+.quest-item{
+display:grid;
+grid-template-columns:1fr auto;
+gap:12px;
+align-items:center;
+padding:12px;
+border:1px solid var(--border);
+border-radius:8px;
+background:var(--surface);
+text-align:left;
+}
+.quest-title{font-weight:700;margin-bottom:6px;}
+.quest-progress{
+height:8px;
+border-radius:999px;
+background:var(--surface-alt);
+border:1px solid var(--border);
+overflow:hidden;
+}
+.quest-progress span{display:block;height:100%;background:var(--primary);width:0%;}
+.quest-meta{
+font-size:13px;
+color:var(--muted);
+margin-top:4px;
+}
+.claim-btn,.convert-btn{
+padding:8px 12px;
+border:1px solid var(--border);
+border-radius:6px;
+background:var(--primary);
+color:white;
+cursor:pointer;
+font-weight:600;
+}
+.claim-btn:disabled,.convert-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.convert-panel{
+margin-top:20px;
+padding:12px;
+border:1px solid var(--border);
+border-radius:8px;
+background:var(--surface);
+}
+.convert-controls{
+display:grid;
+grid-template-columns:1fr 110px auto;
+gap:8px;
+align-items:center;
+}
+.convert-controls select,.convert-controls input{
+padding:8px 10px;
+border:1px solid var(--border);
+border-radius:6px;
+background:var(--surface-alt);
+color:var(--text);
+}
 @media (max-width:620px){
 .bet-buttons{flex-direction:column;align-items:center;}
 .action-buttons{flex-direction:column;}
 .blackjack-cards{flex-direction:column;}
+.quest-item{grid-template-columns:1fr;}
+.convert-controls{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -283,9 +366,36 @@ padding:40px 20px;
 
           <div id="questsContent" class="game-container">
             <div class="quests-content">
-              <h3>Quests</h3>
-              <div class="balance-display">Secondary Balance: <span id="secondaryBalance">0</span> coins</div>
-              <p>Currently in development</p>
+              <div class="quest-toolbar">
+                <div>
+                  <h3>Quests</h3>
+                  <p>Complete rotating goals to earn secondary currency.</p>
+                </div>
+                <div class="balance-display">
+                  <div>Primary: <span id="questPrimaryBalance">0</span> <span id="questPrimaryName">coins</span></div>
+                  <div>Secondary: <span id="secondaryBalance">0</span> <span id="questSecondaryName">tokens</span></div>
+                </div>
+              </div>
+              <div class="quest-tabs" id="questTabs">
+                <button class="quest-tab active" type="button" data-quest-type="daily">Daily</button>
+                <button class="quest-tab" type="button" data-quest-type="weekly">Weekly</button>
+                <button class="quest-tab" type="button" data-quest-type="challenging">Challenging</button>
+              </div>
+              <div id="questSummary" class="quest-meta"></div>
+              <div id="questList" class="quest-list"></div>
+              <div class="convert-panel">
+                <h3>Convert Currency</h3>
+                <p>5 secondary converts to 1 primary. Inverted conversion is taxed: 1 primary converts to 3 secondary.</p>
+                <div class="convert-controls">
+                  <select id="convertDirection">
+                    <option value="secondary_to_primary">5 secondary to 1 primary</option>
+                    <option value="primary_to_secondary">1 primary to 3 secondary</option>
+                  </select>
+                  <input id="convertAmount" type="number" min="1" value="1">
+                  <button id="convertBtn" class="convert-btn" type="button">Convert</button>
+                </div>
+                <div id="convertResult" class="quest-meta"></div>
+              </div>
             </div>
           </div>
         </div>

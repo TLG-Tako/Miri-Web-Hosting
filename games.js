@@ -1,6 +1,14 @@
 let currentUser = null;
 let selectedGuild = null;
 let selectedBet = 5;
+let selectedQuestType = 'daily';
+let questState = null;
+let currencyState = {
+  primaryName: 'coins',
+  primaryEmoji: '',
+  secondaryName: 'tokens',
+  secondaryEmoji: ''
+};
 
 // Initialize the page
 async function init() {
@@ -37,10 +45,12 @@ async function init() {
       selectedGuild = e.target.value;
       if (selectedGuild) {
         await loadBalance();
+        await loadQuests();
       }
     });
 
     await loadBalance();
+    await loadQuests();
   } catch (err) {
     console.error("Failed to load guilds:", err);
     showGuildLoadError(err?.message);
@@ -55,6 +65,16 @@ async function loadBalance() {
 
   try {
     const data = await apiFetch(`/gambling/balance/${selectedGuild}`);
+    if (data.currency) {
+      currencyState = {
+        ...currencyState,
+        primaryName: data.currency.primaryName || currencyState.primaryName,
+        primaryEmoji: data.currency.primaryEmoji || '',
+        secondaryName: data.currency.secondaryName || currencyState.secondaryName,
+        secondaryEmoji: data.currency.secondaryEmoji || ''
+      };
+      updateCurrencyLabels();
+    }
     updateGamblingBalance(data.primary_balance);
     updateQuestBalance(data.secondary_balance);
     updateSpinButton();
@@ -68,6 +88,8 @@ function updateGamblingBalance(balance) {
   document.getElementById('balance').textContent = primary;
   document.getElementById('bjBalance').textContent = primary;
   document.getElementById('pokerBalance').textContent = primary;
+  const questPrimary = document.getElementById('questPrimaryBalance');
+  if (questPrimary) questPrimary.textContent = primary;
 }
 
 function updateQuestBalance(secondaryBalance) {
@@ -78,12 +100,22 @@ function updateQuestBalance(secondaryBalance) {
   }
 }
 
+function updateCurrencyLabels() {
+  const primaryLabel = document.getElementById('questPrimaryName');
+  const secondaryLabel = document.getElementById('questSecondaryName');
+  if (primaryLabel) primaryLabel.textContent = `${currencyState.primaryEmoji} ${currencyState.primaryName}`.trim();
+  if (secondaryLabel) secondaryLabel.textContent = `${currencyState.secondaryEmoji} ${currencyState.secondaryName}`.trim();
+}
+
 function setupEventListeners() {
   // Category selector
-  document.getElementById('gameCategory').addEventListener('change', (e) => {
+  document.getElementById('gameCategory').addEventListener('change', async (e) => {
     const category = e.target.value;
     document.getElementById('gamblingContent').style.display = category === 'gambling' ? 'block' : 'none';
     document.getElementById('questsContent').style.display = category === 'quests' ? 'block' : 'none';
+    if (category === 'quests') {
+      await loadQuests();
+    }
   });
 
   // Gambling game selector
@@ -114,6 +146,17 @@ function setupEventListeners() {
 
   // Poker play button
   document.getElementById('playPokerBtn').addEventListener('click', playPoker);
+
+  document.querySelectorAll('[data-quest-type]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      selectedQuestType = btn.dataset.questType;
+      document.querySelectorAll('[data-quest-type]').forEach(tab => tab.classList.remove('active'));
+      btn.classList.add('active');
+      renderQuests();
+    });
+  });
+
+  document.getElementById('convertBtn').addEventListener('click', convertCurrency);
 }
 
 function updateSpinButton() {
@@ -145,6 +188,7 @@ async function playSlots() {
     // Update primary gambling balance
     updateGamblingBalance(data.newBalance);
     updateSpinButton();
+    await loadQuests();
   } catch (err) {
     console.error('Slots error:', err);
     alert(err?.message || 'Failed to play slots');
@@ -198,6 +242,7 @@ async function startBlackjack() {
 
     displayBlackjackState(data);
     updateGamblingBalance(data.newBalance);
+    await loadQuests();
 
     blackjackInProgress = !data.gameOver;
     hitBtn.disabled = !blackjackInProgress;
@@ -293,6 +338,7 @@ async function playPoker() {
 
     // Update primary gambling balance
     updateGamblingBalance(data.newBalance);
+    await loadQuests();
   } catch (err) {
     console.error('Poker error:', err);
     alert(err?.message || 'Failed to play poker');
@@ -300,6 +346,129 @@ async function playPoker() {
     playBtn.disabled = false;
     playBtn.textContent = 'Play Poker!';
   }
+}
+
+async function loadQuests() {
+  if (!selectedGuild) return;
+
+  try {
+    const data = await apiFetch(`/gambling/quests/${selectedGuild}`);
+    questState = data;
+    if (data.currency) {
+      currencyState = {
+        ...currencyState,
+        secondaryName: data.currency.secondaryName || currencyState.secondaryName,
+        secondaryEmoji: data.currency.secondaryEmoji || ''
+      };
+      updateCurrencyLabels();
+    }
+    updateQuestBalance(data.secondary_balance);
+    renderQuests();
+  } catch (err) {
+    console.error('Failed to load quests:', err);
+    const list = document.getElementById('questList');
+    if (list) list.innerHTML = '<p>Failed to load quests.</p>';
+  }
+}
+
+function renderQuests() {
+  const list = document.getElementById('questList');
+  const summary = document.getElementById('questSummary');
+  if (!list || !summary) return;
+
+  const bucket = questState?.quests?.[selectedQuestType];
+  if (!bucket) {
+    list.innerHTML = '<p>Select a server to view quests.</p>';
+    summary.textContent = '';
+    return;
+  }
+
+  const completed = bucket.items.filter(q => q.complete).length;
+  const claimed = bucket.items.filter(q => q.claimed).length;
+  const refreshText = selectedQuestType === 'challenging' && bucket.expiresAt
+    ? ` Refreshes ${formatTimeLeft(bucket.expiresAt)}.`
+    : '';
+
+  summary.textContent = `${bucket.label}: ${completed}/5 complete, ${claimed}/5 claimed. Reward: ${bucket.reward} ${currencyState.secondaryName} each.${refreshText}`;
+  list.innerHTML = bucket.items.map(item => {
+    const percent = Math.min(100, Math.round((item.progress / item.target) * 100));
+    const disabled = !item.complete || item.claimed ? 'disabled' : '';
+    const buttonText = item.claimed ? 'Claimed' : item.complete ? 'Claim' : 'Locked';
+
+    return `
+      <div class="quest-item">
+        <div>
+          <div class="quest-title">${escapeHtml(item.title)}</div>
+          <div class="quest-progress"><span style="width:${percent}%"></span></div>
+          <div class="quest-meta">${item.progress}/${item.target}</div>
+        </div>
+        <button class="claim-btn" type="button" data-claim-index="${item.index}" ${disabled}>${buttonText}</button>
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('[data-claim-index]').forEach(btn => {
+    btn.addEventListener('click', () => claimQuest(Number(btn.dataset.claimIndex)));
+  });
+}
+
+async function claimQuest(index) {
+  try {
+    const data = await apiFetch(`/gambling/quests/${selectedGuild}/claim`, {
+      method: 'POST',
+      body: JSON.stringify({ type: selectedQuestType, index })
+    });
+
+    updateQuestBalance(data.secondary_balance);
+    await loadQuests();
+  } catch (err) {
+    console.error('Claim quest error:', err);
+    alert(err?.message || 'Failed to claim quest reward');
+  }
+}
+
+async function convertCurrency() {
+  const result = document.getElementById('convertResult');
+  const button = document.getElementById('convertBtn');
+  const direction = document.getElementById('convertDirection').value;
+  const amount = Number(document.getElementById('convertAmount').value || 1);
+
+  button.disabled = true;
+  result.textContent = 'Converting...';
+
+  try {
+    const data = await apiFetch(`/gambling/convert/${selectedGuild}`, {
+      method: 'POST',
+      body: JSON.stringify({ direction, amount })
+    });
+
+    updateGamblingBalance(data.primary_balance);
+    updateQuestBalance(data.secondary_balance);
+    updateSpinButton();
+    result.textContent = `Converted ${data.spent} into ${data.gained}.`;
+    await loadQuests();
+  } catch (err) {
+    console.error('Convert error:', err);
+    result.textContent = err?.message || 'Conversion failed';
+  } finally {
+    button.disabled = false;
+  }
+}
+
+function formatTimeLeft(expiresAt) {
+  const remaining = Math.max(0, Number(expiresAt || 0) - Date.now());
+  const hours = Math.floor(remaining / 3600000);
+  const minutes = Math.floor((remaining % 3600000) / 60000);
+  return `in ${hours}h ${minutes}m`;
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }
 
 function displayPokerCards(data) {
